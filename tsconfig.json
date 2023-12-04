@@ -2,6 +2,40 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+
+      "@pages/*": [
+        "src/app/pages/*"
+      ],
+      "@utilsFunctions/*": [
+        "src/app/utils/*"
+      ],
+      "@services/*": [
+        "src/app/services/*"
+      ],
+      "@components/*": [
+        "src/app/components/*"
+      ],
+      "@pipes/*":[
+        "src/app/pipes/*"
+      ],
+      "@guards/*":[
+        "src/app/guards/*"
+      ],
+      "@myClass/*":[
+        "src/app/classes/*"
+      ],
+      "@assets/*":[
+        "src/assets/*"
+      ],
+      "@environments/*":[
+        "src/environments/*"
+      ],
+      "@interfaces/*":[
+        "src/app/interfaces/*"
+      ],
+    },
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
