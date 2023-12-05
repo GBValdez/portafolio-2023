@@ -18,13 +18,13 @@ export class butterfly {
   public sprite!: Sprite;
   private screenSize!: sizeThreeCanvas;
   constructor(
-    private texture: Texture,
+    private texture: Texture[],
     screenSize: sizeThreeCanvas,
     private mousePosition: Vector3
   ) {
     this.screenSize = screenSize;
     console.log(screenSize);
-    this.material = new SpriteMaterial({ map: this.texture });
+    this.material = new SpriteMaterial({ map: this.texture[0] });
     this.sprite = new Sprite(this.material);
     this.size = randomRange(0.5, 1.5);
     this.scaleSpeed = randomRange(0.05, 0.03);

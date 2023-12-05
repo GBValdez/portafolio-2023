@@ -15,6 +15,7 @@ import {
   OrthographicCamera,
   PerspectiveCamera,
   Scene,
+  Texture,
   TextureLoader,
   Vector2,
   Vector3,
@@ -45,13 +46,14 @@ export class HomeComponent {
   @ViewChild('canvas') private canvasRef!: ElementRef;
 
   initComponents(): void {
-    const textureLoader = new TextureLoader().load(
-      './assets/img/butterfly.png'
-    );
+    const textureLoadaer = new TextureLoader();
+    const TEXTURES: Texture[] = [];
+    TEXTURES.push(textureLoadaer.load('assets/img/mariposa_1.png'));
+    TEXTURES.push(textureLoadaer.load('assets/img/mariposa_2.png'));
 
     for (let index = 0; index < 100; index++) {
       const BUTTERFLY = new butterfly(
-        textureLoader,
+        TEXTURES,
         this.sizeScreen,
         this.mousePosition
       );
