@@ -1,5 +1,4 @@
-<section class="w-screen h-screen background">
-  <canvas #canvas (mousemove)="getMousePos($event)"></canvas>
+<section class="w-screen h-screen background" (mousemove)="getMousePos($event)">
   <section
     class="w-full h-full flex justify-center items-center absolute top-0"
   >
@@ -15,4 +14,5 @@
       </h2>
     </div>
   </section>
+  <canvas #canvas></canvas>
 </section>

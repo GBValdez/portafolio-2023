@@ -9,45 +9,47 @@ import {
   Vector3,
 } from 'three';
 
+interface pos {
+  x: number;
+  y: number;
+}
 export class butterfly {
   material!: SpriteMaterial;
-  scaleSpeed!: number;
-  speed!: number;
   size!: number;
-  xSpeed!: number;
+
+  speed: pos = { x: 0, y: 0 };
+  // Motion
+  motion: pos = { x: 0, y: 0 };
+  limit: pos = { x: 0, y: 0 };
+  // Animation
+  frame: number = 0;
   public sprite!: Sprite;
   private screenSize!: sizeThreeCanvas;
+  private mousePosition!: Vector3;
   constructor(
     private texture: Texture[],
     screenSize: sizeThreeCanvas,
-    private mousePosition: Vector3
+    mousePosition: Vector3
   ) {
+    this.mousePosition = mousePosition;
     this.screenSize = screenSize;
-    console.log(screenSize);
-    this.material = new SpriteMaterial({ map: this.texture[0] });
+    this.material = new SpriteMaterial({
+      transparent: true,
+      color: '#5162FA',
+    });
     this.sprite = new Sprite(this.material);
-    this.size = randomRange(0.5, 1.5);
-    this.scaleSpeed = randomRange(0.05, 0.03);
+    this.size = randomRange(0.3, 1.2);
     this.sprite.scale.set(this.size, this.size, 1);
-    this.speed = randomRange(0.01, 0.05);
-    this.xSpeed = randomRange(0.3, 1);
-    this.xSpeed *= Math.random() > 0.5 ? 1 : -1;
+    this.speed.y = randomRange(0.01, 0.06);
+    this.frame = randomRange(0, 2);
+
+    this.speed.x = randomRange(0.3, 1);
+    this.speed.x *= Math.random() > 0.5 ? 1 : -1;
   }
 
-  scale(): void {
-    this.sprite.scale.x += this.scaleSpeed;
-    this.sprite.scale.x = clamp(
-      this.sprite.scale.x,
-      this.size * 0.1,
-      this.size
-    );
-
-    if (
-      this.sprite.scale.x == this.size ||
-      this.sprite.scale.x == this.size * 0.1
-    ) {
-      this.scaleSpeed *= -1;
-    }
+  animation(): void {
+    this.frame += 0.17;
+    this.sprite.material.map = this.texture[Math.floor(this.frame) % 2];
   }
   fly(second: number): void {
     const currentPosition: Vector3 = this.sprite.position.clone();
@@ -55,18 +57,16 @@ export class butterfly {
     if (this.sprite.position.y > this.screenSize.height + 0.5) {
       this.sprite.position.y = -this.screenSize.height - 0.5;
     }
-    // console.log(this.mousePosition);
-    if (this.mousePosition)
-      if (this.sprite.position.distanceTo(this.mousePosition) > 1.5)
+    if (this.mousePosition) {
+      if (this.sprite.position.distanceTo(this.mousePosition) > 3)
         this.sprite.position.x += Math.sin(second) / (300 * this.xSpeed);
       else {
-        console.log('uir');
         const DIRECTION_X = Math.sign(
           this.mousePosition.x - this.sprite.position.x
         );
-        this.sprite.position.x += DIRECTION_X * 0.1;
+        this.sprite.position.x -= (DIRECTION_X * Math.abs(this.xSpeed)) / 100;
       }
-    else this.sprite.position.x += Math.sin(second) / (300 * this.xSpeed);
+    } else this.sprite.position.x += Math.sin(second) / (300 * this.xSpeed);
     this.updateSpriteRotation(this.sprite, currentPosition);
   }
 
@@ -84,7 +84,7 @@ export class butterfly {
   }
 
   update(second: number): void {
-    this.scale();
+    this.animation();
     this.fly(second);
   }
 }

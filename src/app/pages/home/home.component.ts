@@ -12,6 +12,8 @@ import { sizeThreeCanvas } from '@interfaces/screen-three.interface';
 import { randomRange } from '@utilsFunctions/utils';
 import { butterfly } from 'src/app/classes/butterfly';
 import {
+  LinearFilter,
+  NearestFilter,
   OrthographicCamera,
   PerspectiveCamera,
   Scene,
@@ -20,6 +22,7 @@ import {
   Vector2,
   Vector3,
   WebGLRenderer,
+  sRGBEncoding,
 } from 'three';
 
 @Component({
@@ -32,7 +35,7 @@ import {
 export class HomeComponent {
   sizeScreen!: sizeThreeCanvas;
   time: number = 0;
-  mousePosition!: Vector3;
+  mousePosition: Vector3 = new Vector3(0, 0, 0);
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
   private butterFlies: butterfly[] = [];
 
@@ -50,7 +53,11 @@ export class HomeComponent {
     const TEXTURES: Texture[] = [];
     TEXTURES.push(textureLoadaer.load('assets/img/mariposa_1.png'));
     TEXTURES.push(textureLoadaer.load('assets/img/mariposa_2.png'));
-
+    TEXTURES.forEach((texture) => {
+      texture.minFilter = NearestFilter;
+      texture.magFilter = NearestFilter;
+      texture.premultiplyAlpha = false;
+    });
     for (let index = 0; index < 100; index++) {
       const BUTTERFLY = new butterfly(
         TEXTURES,
@@ -116,6 +123,7 @@ export class HomeComponent {
       canvas: this.canvas,
       alpha: true,
     });
+    this.renderer.outputEncoding = sRGBEncoding;
     this.renderer.setPixelRatio;
     this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
     const component: HomeComponent = this;
@@ -129,10 +137,6 @@ export class HomeComponent {
 
   getMousePos(evt: MouseEvent) {
     const rect = this.canvas.getBoundingClientRect(); // Obtiene la posición y tamaño del canvas
-    this.mousePosition = new Vector3(
-      evt.clientX - rect.left,
-      evt.clientY - rect.top
-    );
-    console.log('posicion', this.mousePosition);
+    this.mousePosition.set(evt.clientX - rect.left, evt.clientY - rect.top, 0);
   }
 }
