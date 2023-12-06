@@ -12,7 +12,10 @@ import { sizeThreeCanvas } from '@interfaces/screen-three.interface';
 import { randomRange } from '@utilsFunctions/utils';
 import { butterfly } from 'src/app/classes/butterfly';
 import {
+  CircleGeometry,
   LinearFilter,
+  Mesh,
+  MeshBasicMaterial,
   NearestFilter,
   OrthographicCamera,
   PerspectiveCamera,
@@ -33,6 +36,7 @@ import {
   styleUrl: './home.component.scss',
 })
 export class HomeComponent {
+  buttonPress: { press: boolean } = { press: false };
   sizeScreen!: sizeThreeCanvas;
   time: number = 0;
   mousePosition: Vector3 = new Vector3(0, 0, 0);
@@ -58,7 +62,7 @@ export class HomeComponent {
       texture.magFilter = NearestFilter;
       texture.premultiplyAlpha = false;
     });
-    for (let index = 0; index < 150; index++) {
+    for (let index = 0; index < 200; index++) {
       const BUTTERFLY = new butterfly(
         TEXTURES,
         this.sizeScreen,
@@ -71,6 +75,9 @@ export class HomeComponent {
         this.sizeScreen.width
       );
       BUTTERFLY.sprite.position.y = -this.sizeScreen.height * Math.random() * 2;
+
+      // BUTTERFLY.sprite.position.x = 0;
+      // BUTTERFLY.sprite.position.y = 0;
 
       this.butterFlies.push(BUTTERFLY);
 
@@ -86,9 +93,16 @@ export class HomeComponent {
 
   private renderer!: WebGLRenderer;
   private scene!: Scene;
+
+  // circulo!: Mesh;
   private createScene(): void {
+    // const geometriaCirculo = new CircleGeometry(2);
+    // const material = new MeshBasicMaterial({ color: 0xffff00 });
+    // this.circulo = new Mesh(geometriaCirculo, material);
+    // this.circulo.position.set(0, 0, 0);
     // scene
     this.scene = new Scene();
+    // this.scene.add(this.circulo);
     // this.scene.add(this.cube);
     // camera
     const aspectRatio = this.canvas.clientWidth / this.canvas.clientHeight;
@@ -107,7 +121,7 @@ export class HomeComponent {
       -1000,
       1000
     );
-    this.camera.position.set(0, 0, -5);
+    this.camera.position.set(0, 0, 0);
   }
 
   private animateCube(): void {
@@ -123,8 +137,7 @@ export class HomeComponent {
       canvas: this.canvas,
       alpha: true,
     });
-    this.renderer.outputEncoding = sRGBEncoding;
-    this.renderer.setPixelRatio;
+
     this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
     const component: HomeComponent = this;
     const animate = () => {
@@ -136,7 +149,23 @@ export class HomeComponent {
   }
 
   getMousePos(evt: MouseEvent) {
-    const rect = this.canvas.getBoundingClientRect(); // Obtiene la posición y tamaño del canvas
-    this.mousePosition.set(evt.clientX - rect.left, evt.clientY - rect.top, 0);
+    // const rect = this.canvas.getBoundingClientRect(); // Obtiene la posición y tamaño del canvas
+
+    var bounds = this.canvas.getBoundingClientRect();
+
+    this.mousePosition.x = ((evt.clientX - bounds.left) / bounds.width) * 2 - 1;
+    this.mousePosition.y =
+      -((evt.clientY - bounds.top) / bounds.height) * 2 + 1;
+
+    // Aquí puedes ajustar las coordenadas del mouse dependiendo del rango de tu cámara ortográfica
+    this.mousePosition.x *= (this.camera.right - this.camera.left) / 2;
+    this.mousePosition.y *= (this.camera.top - this.camera.bottom) / 2;
+
+    // this.mousePosition.set(evt.clientX - rect.left, evt.clientY - rect.top, 0);
+    // this.circulo.position.set(
+    //   this.mousePosition.x,
+    //   this.mousePosition.y,
+    //   this.mousePosition.z
+    // );
   }
 }

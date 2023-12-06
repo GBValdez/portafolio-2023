@@ -27,16 +27,20 @@ export class butterfly {
 
   size: number = randomRange(0.3, 1.3);
 
-  speed: number = 0.001;
+  speed: number = 0.006;
   // Motion
-  motion: number = 0;
-  limit: number = randomRange(0.01, 0.06);
+  motion: pos = { x: 0, y: 0 };
+  limitBase: number = randomRange(0.01, 0.06);
+  limit: number = this.limitBase;
   // Animation
   frame: number = randomRange(0, 2);
   //Angle
   motionAngle: number = 0;
-  angleSpeed: number = randomRange(0.1, 0.5);
-  angleLimit: number = randomRange(1, 2);
+  angleSpeedBase: number = randomRange(0.1, 0.5);
+  angleSpeed = this.angleSpeedBase;
+  angleLimitBase: number = randomRange(1, 2);
+  angleLimit: number = this.angleLimitBase;
+
   anglesDegrees: number = 90;
   apertura: number = randomRange(10, 45);
 
@@ -64,26 +68,48 @@ export class butterfly {
   }
 
   updateAngle(seconds: number) {
-    this.motionAngle += this.angleSpeed;
-    this.motionAngle = clamp(
-      this.motionAngle,
-      -this.angleLimit,
-      this.angleLimit
-    );
-    this.anglesDegrees += this.motionAngle;
-    if (this.anglesDegrees > 90 + this.apertura && this.angleSpeed > 0)
-      this.angleSpeed = -Math.abs(this.angleSpeed);
-    if (this.anglesDegrees < 90 - this.apertura && this.angleSpeed < 0)
-      this.angleSpeed = Math.abs(this.angleSpeed);
+    if (this.sprite.position.distanceTo(this.mousePosition) > 2) {
+      this.limit = this.limitBase;
+      this.angleLimit = this.angleLimitBase;
+
+      this.motionAngle += this.angleSpeed;
+      this.motionAngle = clamp(
+        this.motionAngle,
+        -this.angleLimit,
+        this.angleLimit
+      );
+      this.anglesDegrees += this.motionAngle;
+      if (this.anglesDegrees > 90 + this.apertura && this.angleSpeed > 0)
+        this.angleSpeed = -this.angleSpeedBase;
+      if (this.anglesDegrees < 90 - this.apertura && this.angleSpeed < 0)
+        this.angleSpeed = this.angleSpeedBase;
+    } else {
+      this.limit = this.limitBase * 2.5;
+      const POS: Vector3 = this.sprite.position.clone();
+      POS.normalize();
+      const MOUSE_POS: Vector3 = this.mousePosition.clone();
+      MOUSE_POS.normalize();
+      let ANGLE = Math.atan2(
+        this.mousePosition.y - this.sprite.position.y,
+        this.mousePosition.x - this.sprite.position.x
+      );
+      ANGLE = radiansToDegrees(ANGLE);
+      ANGLE = (ANGLE + 360) % 360;
+      ANGLE = Math.sign(Math.cos(degreesToRadians(ANGLE))) * -1;
+      this.angleLimit = this.angleLimitBase * 2;
+      if (ANGLE >= 0) {
+        this.angleSpeed = this.angleSpeedBase * 2;
+      } else {
+        this.angleSpeed = -this.angleSpeedBase * 2;
+      }
+    }
   }
 
   fly(): void {
-    this.motion += this.speed;
-    this.motion = clamp(this.motion, -this.limit, this.limit);
-    if (this.sprite.position.distanceTo(this.mousePosition) > 0.01) {
-      this.motion += this.speed;
-      this.motion = clamp(this.motion, -this.limit, this.limit);
-    }
+    this.motion.x += Math.cos(this.anglesRadians) * this.speed;
+    this.motion.y += Math.sin(this.anglesRadians) * this.speed;
+    this.motion.x = clamp(this.motion.x, -this.limit, this.limit);
+    this.motion.y = clamp(this.motion.y, -this.limit, this.limit);
   }
 
   limitScreen(): void {
@@ -100,16 +126,17 @@ export class butterfly {
   }
 
   move(): void {
-    this.sprite.position.x += Math.cos(this.anglesRadians) * this.motion;
-    this.sprite.position.y += Math.sin(this.anglesRadians) * this.motion;
+    this.sprite.position.x += this.motion.x;
+    this.sprite.position.y += this.motion.y;
     this.sprite.material.rotation = degreesToRadians(this.anglesDegrees - 90);
   }
 
   update(second: number): void {
     this.animation();
 
-    this.fly();
     this.updateAngle(second);
+    this.fly();
+
     this.limitScreen();
     this.move();
   }
