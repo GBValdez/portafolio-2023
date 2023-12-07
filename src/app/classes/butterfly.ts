@@ -1,4 +1,4 @@
-import { sizeThreeCanvas } from '@interfaces/screen-three.interface';
+import { pos, sizeThreeCanvas } from '@interfaces/screen-three.interface';
 import {
   clamp,
   degreesToRadians,
@@ -14,10 +14,6 @@ import {
   Vector3,
 } from 'three';
 
-interface pos {
-  x: number;
-  y: number;
-}
 export class butterfly {
   material: SpriteMaterial = new SpriteMaterial({
     transparent: true,

@@ -28,23 +28,51 @@ import {
   sRGBEncoding,
 } from 'three';
 
+import gsap from 'gsap';
+import { FaceComponent } from '@components/face/face.component';
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [],
+  imports: [FaceComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
 export class HomeComponent {
+  @ViewChild('audio', { static: true }) Music!: ElementRef;
+
+  getUrlImg(): string {
+    const URL_BASE = './assets/img/';
+    return this.playMusic ? URL_BASE + 'pausa.png' : URL_BASE + 'musica.png';
+  }
+
+  volumen: { value: number } = { value: 0 };
+  tween!: GSAPTween;
+
+  get audioHtml(): HTMLAudioElement {
+    return this.Music.nativeElement;
+  }
+  urlImg: string = this.getUrlImg();
+  playMusic: boolean = false;
+
   buttonPress: { press: boolean } = { press: false };
   sizeScreen!: sizeThreeCanvas;
   time: number = 0;
   mousePosition: Vector3 = new Vector3(0, 0, 0);
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
   private butterFlies: butterfly[] = [];
+  initTween() {
+    this.audioHtml.volume = 0;
+    this.tween = gsap.to(this.audioHtml, {
+      duration: 5,
+      volume: 1,
+      ease: 'sine.out',
+    });
+  }
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
+      this.initTween();
       this.createScene();
       this.initComponents();
       this.startRenderingLoop();
@@ -96,15 +124,7 @@ export class HomeComponent {
 
   // circulo!: Mesh;
   private createScene(): void {
-    // const geometriaCirculo = new CircleGeometry(2);
-    // const material = new MeshBasicMaterial({ color: 0xffff00 });
-    // this.circulo = new Mesh(geometriaCirculo, material);
-    // this.circulo.position.set(0, 0, 0);
-    // scene
     this.scene = new Scene();
-    // this.scene.add(this.circulo);
-    // this.scene.add(this.cube);
-    // camera
     const aspectRatio = this.canvas.clientWidth / this.canvas.clientHeight;
     const frustumSize = 10; // Puedes ajustar este valor según tus necesidades
     const frustumHalfHeight = frustumSize / 2;
@@ -160,12 +180,15 @@ export class HomeComponent {
     // Aquí puedes ajustar las coordenadas del mouse dependiendo del rango de tu cámara ortográfica
     this.mousePosition.x *= (this.camera.right - this.camera.left) / 2;
     this.mousePosition.y *= (this.camera.top - this.camera.bottom) / 2;
-
-    // this.mousePosition.set(evt.clientX - rect.left, evt.clientY - rect.top, 0);
-    // this.circulo.position.set(
-    //   this.mousePosition.x,
-    //   this.mousePosition.y,
-    //   this.mousePosition.z
-    // );
+  }
+  async playMusicFunction() {
+    this.playMusic = !this.playMusic;
+    this.urlImg = this.getUrlImg();
+    if (this.playMusic) {
+      this.audioHtml.play();
+      this.tween.play();
+    } else this.tween.reverse();
+    await this.tween;
+    if (!this.playMusic) this.audioHtml.pause();
   }
 }

@@ -1,17 +1,24 @@
+<img
+  [src]="urlImg"
+  (click)="playMusicFunction()"
+  class="w-[70px] h-[70px] cursor-pointer IMGICON fixed"
+/>
+<audio
+  src="./assets/music/Heroes.mp3"
+  #audio
+  [hidden]="true"
+  (ended)="audio.play()"
+></audio>
 <section class="w-screen h-screen background" (mousemove)="getMousePos($event)">
   <section
     class="w-full h-full flex justify-center items-center absolute top-0"
   >
     <div class="flex justify-center flex-wrap z-[-20]">
-      <div class="w-[300px] h-[300px] bg-white rounded-full ball">
-        <div class="w-full flex justify-center mt-[70px]">
-          <div class="w-[50px] h-[150px] mx-3 eye"></div>
-          <div class="w-[50px] h-[150px] mx-3 eye"></div>
-        </div>
-      </div>
-      <h2 class="text-white z-[-20] w-full text-center text-7xl">
-        Bienvenidos
+      <app-face></app-face>
+      <h2 class="text-white z-[-20] w-full text-center sm:text-7xl text-4xl">
+        Bienvenido
       </h2>
+      <h4 class="text-white sm:text-4xl text-2xl">Soy Gabriel Valdez</h4>
     </div>
   </section>
   <canvas #canvas></canvas>
