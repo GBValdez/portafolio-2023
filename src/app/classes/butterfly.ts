@@ -55,7 +55,6 @@ export class butterfly {
     this.mousePosition = mousePosition;
     this.screenSize = screenSize;
     this.sprite.scale.set(this.size, this.size, 1);
-    console.log(this.anglesDegrees);
   }
 
   animation(): void {

@@ -90,7 +90,7 @@ export class HomeComponent {
       texture.magFilter = NearestFilter;
       texture.premultiplyAlpha = false;
     });
-    for (let index = 0; index < 200; index++) {
+    for (let index = 0; index < 160; index++) {
       const BUTTERFLY = new butterfly(
         TEXTURES,
         this.sizeScreen,

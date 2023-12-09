@@ -38,6 +38,5 @@ export class FaceComponent {
       this.eyes[index].x = ((e.pageX - RECT.left) / DISTANCE) * FORCE;
       this.eyes[index].y = ((e.pageY - RECT.top) / DISTANCE) * FORCE;
     });
-    console.log(`Posición del ratón: X: ${e.pageX}, Y: ${e.pageY}`);
   }
 }
