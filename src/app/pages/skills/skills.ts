@@ -1,0 +1,17 @@
+export const skillLogos: string[] = [
+  'angular.svg',
+  'css.svg',
+  'figma.svg',
+  'git.svg',
+  'gitHub.svg',
+  'godot.svg',
+  'html.svg',
+  'javascript.svg',
+  'mysql.svg',
+  'postgresql.svg',
+  'python.svg',
+  'selenium.svg',
+  'springboot.svg',
+  'tailwind.svg',
+  'typescript.svg',
+];
