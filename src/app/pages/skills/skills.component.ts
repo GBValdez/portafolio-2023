@@ -1,4 +1,4 @@
-import { isPlatformBrowser } from '@angular/common';
+import { NgStyle, isPlatformBrowser } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -20,17 +20,22 @@ import {
   Runner,
   World,
 } from 'matter-js';
-import { skillBody, skillLogos } from './skills';
+import { skillBody, skillLogos, skillsInfo } from './skills';
 
 @Component({
   selector: 'app-skills',
   standalone: true,
-  imports: [],
+  imports: [NgStyle],
   templateUrl: './skills.component.html',
   styleUrl: './skills.component.scss',
 })
 export class SkillsComponent implements AfterViewInit {
+  logoSRC: string = './assets/img/only-logos/css.svg';
+  logoText: string = 'CSS';
+  colorLogo: string = '#1572B6';
   skillsBodies: skillBody[] = [];
+  interval!: NodeJS.Timeout | null;
+
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -38,6 +43,19 @@ export class SkillsComponent implements AfterViewInit {
       this.addBase();
       this.addBox();
       this.update();
+      this.startInterval();
+    }
+  }
+
+  startInterval(): void {
+    this.interval = setInterval(() => {
+      const random = Math.floor(Math.random() * this.skillsBodies.length);
+      this.changeLogo(this.skillsBodies[random]);
+    }, 3000);
+  }
+  stopInterval(): void {
+    if (this.interval) {
+      clearInterval(this.interval);
     }
   }
 
@@ -93,6 +111,24 @@ export class SkillsComponent implements AfterViewInit {
     const mouse = Mouse.create(this.render.canvas);
     const MOUSE_CONSTRAINTS = MouseConstraint.create(this.engine, { mouse });
     Composite.add(this.engine.world, [MOUSE_CONSTRAINTS, ...base]);
+
+    Events.on(MOUSE_CONSTRAINTS, 'startdrag', (event) => {
+      const BODY = this.skillsBodies.find(
+        (body) => body.body === event.source.body
+      );
+      if (!BODY) return;
+      this.stopInterval();
+      this.changeLogo(BODY);
+    });
+    Events.on(MOUSE_CONSTRAINTS, 'enddrag', (event) => {
+      this.startInterval();
+    });
+  }
+
+  changeLogo(Body: skillBody): void {
+    this.logoSRC = `./assets/img/only-logos/${Body.logo}`;
+    this.logoText = Body.logo.split('.')[0].toUpperCase();
+    this.colorLogo = Body.color;
   }
 
   addBox(): void {
@@ -116,7 +152,6 @@ export class SkillsComponent implements AfterViewInit {
         logo: logo.logo,
       };
     });
-
     Composite.add(this.engine.world, [...this.skillsBodies.map((b) => b.body)]);
   }
   @ViewChild('view') canvas!: ElementRef<HTMLCanvasElement>;
