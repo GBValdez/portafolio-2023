@@ -1,11 +1,15 @@
 <section #view class="w-screen h-screen"></section>
 <section
-  class="absolute w-screen h-screen top-0 left-0 flex justify-center items-center z-[-1000] pointer-events-none"
+  class="fixed w-screen h-screen top-0 left-0 flex justify-center items-center z-[-1000] pointer-events-none"
 >
-  <div class="flex flex-col items-center justify-center opacity-80">
-    <img [src]="logoSRC" alt="" class="w-[90%]" />
-    <h2 class="text-5xl font-black mt-2" [ngStyle]="{ color: colorLogo }">
-      {{ logoText }}
+  <div
+    class="flex-col items-center justify-center opacity-80"
+    *ngFor="let skill of skillsShow"
+    [ngClass]="{ flex: skill.show, hidden: !skill.show }"
+  >
+    <img [src]="createUrl(skill.logo)" alt="" class="w-[90%]" />
+    <h2 class="text-5xl font-black mt-2" [ngStyle]="{ color: skill.color }">
+      {{ createName(skill.logo) }}
     </h2>
   </div>
 </section>

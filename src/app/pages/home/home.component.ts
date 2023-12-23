@@ -4,6 +4,7 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   Component,
   ElementRef,
+  HostListener,
   Inject,
   PLATFORM_ID,
   ViewChild,
@@ -40,6 +41,28 @@ import { FaceComponent } from '@components/face/face.component';
 })
 export class HomeComponent {
   @ViewChild('audio', { static: true }) Music!: ElementRef;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    // Puedes obtener el nuevo tamaño de la ventana así:
+    const aspect = window.innerWidth / window.innerHeight;
+    const frustumSize = 10; // Ajusta este valor según sea necesario para tu escena
+    const frustumHalfHeight = frustumSize / 2;
+    const frustumHalfWidth = frustumHalfHeight * aspect;
+    this.camera.left = -frustumHalfWidth;
+    this.camera.right = frustumHalfWidth;
+    this.camera.top = frustumHalfHeight;
+    this.camera.bottom = -frustumHalfHeight;
+    // Actualiza la matriz de proyección de la cámara
+    this.camera.updateProjectionMatrix();
+
+    // Actualiza el tamaño del renderizador
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.sizeScreen.width = frustumHalfWidth;
+    this.sizeScreen.height = frustumHalfHeight;
+
+    // Lógica adicional que quieras realizar con los nuevos tamaños
+  }
 
   getUrlImg(): string {
     const URL_BASE = './assets/img/';
@@ -90,27 +113,28 @@ export class HomeComponent {
       texture.magFilter = NearestFilter;
       texture.premultiplyAlpha = false;
     });
-    for (let index = 0; index < 100; index++) {
+    let butterNum: number = 0;
+    const TIMEOUT = setInterval(() => {
       const BUTTERFLY = new butterfly(
         TEXTURES,
         this.sizeScreen,
         this.mousePosition
       );
-
-      // Ahora puedes usar minX y maxX en randomRange
       BUTTERFLY.sprite.position.x = randomRange(
         -this.sizeScreen.width,
         this.sizeScreen.width
       );
-      BUTTERFLY.sprite.position.y = -this.sizeScreen.height * Math.random() * 2;
-
-      // BUTTERFLY.sprite.position.x = 0;
-      // BUTTERFLY.sprite.position.y = 0;
+      BUTTERFLY.sprite.position.y = -this.sizeScreen.height;
 
       this.butterFlies.push(BUTTERFLY);
 
       this.scene.add(BUTTERFLY.sprite);
-    }
+      butterNum++;
+      console.log(butterNum);
+      if (butterNum > 99) {
+        clearTimeout(TIMEOUT);
+      }
+    }, 250);
   }
 
   private get canvas(): HTMLCanvasElement {

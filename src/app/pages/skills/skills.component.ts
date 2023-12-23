@@ -1,8 +1,9 @@
-import { NgStyle, isPlatformBrowser } from '@angular/common';
+import { NgClass, NgFor, NgStyle, isPlatformBrowser } from '@angular/common';
 import {
   AfterViewInit,
   Component,
   ElementRef,
+  HostListener,
   Inject,
   PLATFORM_ID,
   ViewChild,
@@ -20,25 +21,24 @@ import {
   Runner,
   World,
 } from 'matter-js';
-import { skillBody, skillLogos, skillsInfo } from './skills';
+import { skillBody, skillLogos, skillsInfo, skillsShow } from './skills';
 
 @Component({
   selector: 'app-skills',
   standalone: true,
-  imports: [NgStyle],
+  imports: [NgStyle, NgFor, NgClass],
   templateUrl: './skills.component.html',
   styleUrl: './skills.component.scss',
 })
 export class SkillsComponent implements AfterViewInit {
-  logoSRC: string = './assets/img/only-logos/css.svg';
-  logoText: string = 'CSS';
-  colorLogo: string = '#1572B6';
   skillsBodies: skillBody[] = [];
   interval!: NodeJS.Timeout | null;
-
+  boxBodies: Body[] = [];
+  skillsShow: skillsShow[] = [];
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
+      this.preloadImgs();
       this.createScene();
       this.addBase();
       this.addBox();
@@ -47,10 +47,23 @@ export class SkillsComponent implements AfterViewInit {
     }
   }
 
+  preloadImgs(): void {
+    this.skillsShow = skillLogos.map((skill) => {
+      return { ...skill, show: false };
+    });
+    this.skillsShow[0].show = true;
+  }
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.render.canvas.width = this.canvas.nativeElement.clientWidth;
+    this.render.canvas.height = this.canvas.nativeElement.clientHeight;
+    this.addPoints();
+  }
+
   startInterval(): void {
     this.interval = setInterval(() => {
-      const random = Math.floor(Math.random() * this.skillsBodies.length);
-      this.changeLogo(this.skillsBodies[random]);
+      const random = Math.floor(Math.random() * (this.skillsShow.length - 1));
+      this.changeLogo(random);
     }, 3000);
   }
   stopInterval(): void {
@@ -94,23 +107,34 @@ export class SkillsComponent implements AfterViewInit {
     Render.run(this.render);
   }
 
-  addBase(): void {
-    let base: Body[] = [];
-    for (let y = 0; y < 10; y++) {
-      for (let x = 0; x < 10; x++) {
-        const space = y % 2 === 0 ? 0 : 75;
-        base = [
-          ...base,
-          Bodies.circle(x * 150 + space, y * 150 + 150, 10, {
+  addPoints(): void {
+    this.boxBodies.forEach((body) => {
+      Composite.remove(this.engine.world, body);
+    });
+    this.boxBodies = [];
+    let yCurrent: number = 0;
+    while (yCurrent < window.innerHeight) {
+      let xCurrent: number = 0;
+      while (xCurrent < window.innerWidth) {
+        const space = (yCurrent / 150) % 2 === 0 ? 0 : 75;
+        this.boxBodies = [
+          ...this.boxBodies,
+          Bodies.circle(xCurrent + space, yCurrent + 150, 10, {
             isStatic: true,
           }),
         ];
+        xCurrent += 150;
       }
+      yCurrent += 150;
     }
+    Composite.add(this.engine.world, this.boxBodies);
+  }
 
+  addBase(): void {
+    this.addPoints();
     const mouse = Mouse.create(this.render.canvas);
     const MOUSE_CONSTRAINTS = MouseConstraint.create(this.engine, { mouse });
-    Composite.add(this.engine.world, [MOUSE_CONSTRAINTS, ...base]);
+    Composite.add(this.engine.world, [MOUSE_CONSTRAINTS]);
 
     Events.on(MOUSE_CONSTRAINTS, 'startdrag', (event) => {
       const BODY = this.skillsBodies.find(
@@ -118,26 +142,38 @@ export class SkillsComponent implements AfterViewInit {
       );
       if (!BODY) return;
       this.stopInterval();
-      this.changeLogo(BODY);
+      const INDEX: number = this.skillsShow.findIndex(
+        (body) => body.logo === BODY.logo
+      );
+      this.changeLogo(INDEX);
     });
     Events.on(MOUSE_CONSTRAINTS, 'enddrag', (event) => {
       this.startInterval();
     });
   }
 
-  changeLogo(Body: skillBody): void {
-    this.logoSRC = `./assets/img/only-logos/${Body.logo}`;
-    this.logoText = Body.logo.split('.')[0].toUpperCase();
-    this.colorLogo = Body.color;
+  changeLogo(index: number): void {
+    const ACTIVE_SKILL = this.skillsShow.find((skill) => skill.show);
+    ACTIVE_SKILL!.show = false;
+    this.skillsShow[index].show = true;
+  }
+
+  createName(name: string): string {
+    return name.split('.')[0].toUpperCase();
+  }
+  createUrl(name: string): string {
+    return `./assets/img/only-logos/${name}`;
   }
 
   addBox(): void {
-    this.skillsBodies = skillLogos.map((logo, index) => {
-      return {
-        body: Bodies.circle(100 + index * 50, 10, 50, {
+    let NUM: number = 0;
+    const interval = setInterval(() => {
+      const currentSkill: skillsInfo = skillLogos[NUM];
+      const newBall: skillBody = {
+        body: Bodies.circle(window.innerWidth * Math.random(), -100, 50, {
           render: {
             sprite: {
-              texture: `./assets/img/logos/${logo.logo}`,
+              texture: `./assets/img/logos/${currentSkill.logo}`,
               xScale: 2.5,
               yScale: 2.5,
             },
@@ -148,11 +184,16 @@ export class SkillsComponent implements AfterViewInit {
           restitution: 0.7,
           friction: 1,
         }),
-        color: logo.color,
-        logo: logo.logo,
+        color: currentSkill.color,
+        logo: currentSkill.logo,
       };
-    });
-    Composite.add(this.engine.world, [...this.skillsBodies.map((b) => b.body)]);
+      this.skillsBodies = [...this.skillsBodies, newBall];
+      Composite.add(this.engine.world, newBall.body);
+      NUM++;
+      if (NUM > skillLogos.length - 1) {
+        clearInterval(interval);
+      }
+    }, 300);
   }
   @ViewChild('view') canvas!: ElementRef<HTMLCanvasElement>;
   engine: Engine = Engine.create();

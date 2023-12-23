@@ -4,6 +4,10 @@ export interface skillsInfo {
   logo: string;
   color: string;
 }
+
+export interface skillsShow extends skillsInfo {
+  show: boolean;
+}
 export interface skillBody extends skillsInfo {
   body: matter.Body;
 }
