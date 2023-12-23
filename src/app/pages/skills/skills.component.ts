@@ -5,6 +5,7 @@ import {
   ElementRef,
   HostListener,
   Inject,
+  OnInit,
   PLATFORM_ID,
   ViewChild,
 } from '@angular/core';
@@ -30,15 +31,17 @@ import { skillBody, skillLogos, skillsInfo, skillsShow } from './skills';
   templateUrl: './skills.component.html',
   styleUrl: './skills.component.scss',
 })
-export class SkillsComponent implements AfterViewInit {
+export class SkillsComponent implements AfterViewInit, OnInit {
   skillsBodies: skillBody[] = [];
   interval!: NodeJS.Timeout | null;
   boxBodies: Body[] = [];
   skillsShow: skillsShow[] = [];
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  ngOnInit(): void {
+    this.preloadImgs();
+  }
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.preloadImgs();
       this.createScene();
       this.addBase();
       this.addBox();
