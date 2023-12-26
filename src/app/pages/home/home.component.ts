@@ -39,7 +39,7 @@ import { FaceComponent } from '@components/face/face.component';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
-export class HomeComponent {
+export class HomeComponent implements AfterViewInit {
   @ViewChild('audio', { static: true }) Music!: ElementRef;
 
   @HostListener('window:resize', ['$event'])
@@ -60,7 +60,7 @@ export class HomeComponent {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.sizeScreen.width = frustumHalfWidth;
     this.sizeScreen.height = frustumHalfHeight;
-
+    // alert('resize ' + window.innerWidth);
     // Lógica adicional que quieras realizar con los nuevos tamaños
   }
 

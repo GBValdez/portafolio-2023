@@ -12,6 +12,11 @@ export const routes: Routes = [
       import('@pages/skills/skills.component').then((m) => m.SkillsComponent),
   },
   {
+    path: 'perfil',
+    loadComponent: () =>
+      import('@pages/perfil/perfil.component').then((m) => m.PerfilComponent),
+  },
+  {
     path: '**',
     redirectTo: 'home',
   },
