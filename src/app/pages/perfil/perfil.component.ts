@@ -10,10 +10,13 @@ import {
 } from '@angular/core';
 import {
   BufferAttribute,
+  CircleGeometry,
   Clock,
+  InstancedBufferAttribute,
   InstancedBufferGeometry,
   LinearFilter,
   Mesh,
+  MeshBasicMaterial,
   Object3D,
   OrthographicCamera,
   PerspectiveCamera,
@@ -40,12 +43,17 @@ export class PerfilComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.initThree();
+      this.container = new Object3D();
+      this.scene.add(this.container);
       this.addTexture();
+      // this.resize();
+
+      this.animate();
     }
   }
   private clock!: Clock;
   private camera!: PerspectiveCamera;
-
+  private fovHeight: number = 0;
   private renderer!: WebGLRenderer;
   private scene!: Scene;
   private texture!: Texture;
@@ -59,6 +67,7 @@ export class PerfilComponent implements AfterViewInit {
 
   initThree() {
     this.scene = new Scene();
+
     this.camera = new PerspectiveCamera(
       50,
       window.innerWidth / window.innerHeight,
@@ -72,70 +81,81 @@ export class PerfilComponent implements AfterViewInit {
       alpha: true,
     });
     this.clock = new Clock(true);
-    const animate = () => {
-      const DELTA = this.clock.getDelta();
-
-      requestAnimationFrame(animate);
-      this.renderer.render(this.scene, this.camera);
-    };
-    animate();
   }
+
+  animate() {
+    // console.log('animate');
+    // const DELTA = this.clock.getDelta();
+    // const MATERIAL = this.object.material as RawShaderMaterial;
+    // MATERIAL.uniforms['uTime'].value += DELTA * 5;
+    this.renderer.render(this.scene, this.camera);
+    requestAnimationFrame(this.animate.bind(this));
+  }
+
   addTexture() {
     const loader = new TextureLoader();
     loader.load('./assets/img/sample-02.png', (texture) => {
       this.texture = texture;
+      // console.log('textura', this.texture);
       this.texture.minFilter = LinearFilter;
       this.texture.magFilter = LinearFilter;
       this.texture.format = RGBAFormat;
       this.initPoints();
     });
   }
+
   initPoints() {
     const numPoints: number =
       this.texture.image.width * this.texture.image.height;
     let numVisible: number = 0;
     const threshold: number = 34;
-    const CANVAS_DATA: HTMLCanvasElement = document.createElement('canvas');
-    const CTX = CANVAS_DATA.getContext('2d');
-    CANVAS_DATA.width = this.texture.image.width;
-    CANVAS_DATA.height = this.texture.image.height;
+    const CANVAS_ELEMENT: HTMLCanvasElement = document.createElement('canvas');
+    const CTX = CANVAS_ELEMENT.getContext('2d');
+
+    CANVAS_ELEMENT.width = this.texture.image.width;
+    CANVAS_ELEMENT.height = this.texture.image.height;
+    CTX!.scale(1, -1);
     CTX!.drawImage(
       this.texture.image,
       0,
       0,
       this.texture.image.width,
-      this.texture.image.height
+      this.texture.image.height * -1
     );
+
     const IMG_DATA = CTX!.getImageData(
       0,
       0,
-      CANVAS_DATA.width,
-      CANVAS_DATA.height
+      CANVAS_ELEMENT.width,
+      CANVAS_ELEMENT.height
     );
-    for (let i = 0; i < numPoints * 4; i += 4) {
-      if (IMG_DATA.data[i] > threshold) numVisible++;
+    const ORIGINAL_COLORS = Float32Array.from(IMG_DATA.data);
+
+    for (let i = 0; i < numPoints; i++) {
+      if (ORIGINAL_COLORS[i * 4 + 0] > threshold) numVisible++;
     }
 
     const UNIFORMS = {
       uTime: { value: 0 },
-      uRandom: { value: 1 },
-      uDepth: { value: 2 },
-      uSize: { value: 0 },
+      uRandom: { value: 2.0 },
+      uDepth: { value: 4.0 },
+      uSize: { value: 1.5 },
       uTextureSize: {
         value: new Vector2(this.texture.image.width, this.texture.image.height),
       },
       uTexture: { value: this.texture },
-      UTouch: { value: null },
+      uTouch: { value: null },
     };
 
-    const MATERIAL = new RawShaderMaterial({
+    const MATERIAL: RawShaderMaterial = new RawShaderMaterial({
       uniforms: UNIFORMS,
       vertexShader: VERTEX,
       fragmentShader: FRAGMENT,
       depthTest: false,
       transparent: true,
     });
-    const GEOMETRY = new InstancedBufferGeometry();
+
+    const GEOMETRY: InstancedBufferGeometry = new InstancedBufferGeometry();
 
     const POSITIONS = new BufferAttribute(new Float32Array(4 * 3), 3);
     POSITIONS.setXYZ(0, -0.5, 0.5, 0.0);
@@ -158,23 +178,52 @@ export class PerfilComponent implements AfterViewInit {
     const INDICES = new Uint16Array(numVisible);
     const OFFSETS = new Float32Array(numVisible * 3);
     const ANGLES = new Float32Array(numVisible);
+
     for (let i = 0, j = 0; i < numPoints; i++) {
-      if (IMG_DATA.data[i * 4] > threshold) {
-        OFFSETS[j * 3 + 0] = i % this.texture.image.width;
-        OFFSETS[j * 3 + 1] = Math.floor(i / this.texture.image.width);
-        OFFSETS[j * 3 + 2] = 0;
-        ANGLES[j] = Math.random() * Math.PI;
-        INDICES[j] = i;
-        j++;
-      }
+      if (ORIGINAL_COLORS[i * 4 + 0] <= threshold) continue;
+
+      OFFSETS[j * 3 + 0] = i % this.texture.image.width;
+      OFFSETS[j * 3 + 1] = Math.floor(i / this.texture.image.width);
+
+      INDICES[j] = i;
+
+      ANGLES[j] = Math.random() * Math.PI;
+
+      j++;
     }
-    GEOMETRY.setAttribute('pindex', new BufferAttribute(INDICES, 1, false));
-    GEOMETRY.setAttribute('offset', new BufferAttribute(OFFSETS, 3, false));
-    GEOMETRY.setAttribute('angle', new BufferAttribute(ANGLES, 1, false));
+
+    GEOMETRY.setAttribute(
+      'pindex',
+      new InstancedBufferAttribute(INDICES, 1, false)
+    );
+    GEOMETRY.setAttribute(
+      'offset',
+      new InstancedBufferAttribute(OFFSETS, 3, false)
+    );
+    GEOMETRY.setAttribute(
+      'angle',
+      new InstancedBufferAttribute(ANGLES, 1, false)
+    );
 
     this.object = new Mesh(GEOMETRY, MATERIAL);
-    this.container = new Object3D();
     this.container.add(this.object);
-    this.scene.add(this.container);
+  }
+
+  resize() {
+    if (!this.renderer) return;
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+
+    this.fovHeight =
+      2 *
+      Math.tan((this.camera.fov * Math.PI) / 180 / 2) *
+      this.camera.position.z;
+
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const scale = this.fovHeight / this.texture.image.height;
+    this.object.scale.set(scale, scale, 1);
+    // if (this.interactive) this.interactive.resize();
+    // if (this.particles) this.particles.resize();
   }
 }
