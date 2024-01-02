@@ -3,6 +3,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  HostListener,
   Inject,
   OnInit,
   PLATFORM_ID,
@@ -20,8 +21,10 @@ import {
   Object3D,
   OrthographicCamera,
   PerspectiveCamera,
+  PlaneGeometry,
   RGBAFormat,
   RawShaderMaterial,
+  Raycaster,
   Scene,
   Texture,
   TextureLoader,
@@ -30,6 +33,9 @@ import {
 } from 'three';
 import { VERTEX } from './glsl/vertex';
 import { FRAGMENT } from './glsl/fragment';
+import { TouchTexture } from '@myClass/touchTexture';
+import { pos } from '@interfaces/screen-three.interface';
+import gsap from 'gsap';
 
 @Component({
   selector: 'app-perfil',
@@ -40,15 +46,16 @@ import { FRAGMENT } from './glsl/fragment';
 })
 export class PerfilComponent implements AfterViewInit {
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  @HostListener('window:resize', ['$event']) onResize(event: any) {
+    this.resize();
+  }
+
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.initThree();
       this.container = new Object3D();
       this.scene.add(this.container);
       this.addTexture();
-      // this.resize();
-
-      this.animate();
     }
   }
   private clock!: Clock;
@@ -57,12 +64,51 @@ export class PerfilComponent implements AfterViewInit {
   private renderer!: WebGLRenderer;
   private scene!: Scene;
   private texture!: Texture;
+  private rect!: DOMRect;
 
   private container!: Object3D;
   private object!: Mesh;
+  private raysCaster: Raycaster = new Raycaster();
+  private planeHit!: Mesh;
+
+  touchTexture!: TouchTexture;
   @ViewChild('canvas') private canvasRef!: ElementRef;
   private get canvas(): HTMLCanvasElement {
     return this.canvasRef.nativeElement as HTMLCanvasElement;
+  }
+
+  initPart() {
+    const MATERIAL = this.object.material as RawShaderMaterial;
+    const TIME = 0.7;
+    gsap
+      .fromTo(
+        MATERIAL.uniforms['uSize'],
+        { value: 0.0 },
+        {
+          value: 1.5,
+          duration: TIME,
+          ease: 'power1.out',
+          onUpdate: (s) => {
+            console.log('aaa');
+          },
+        }
+      )
+      .play();
+    gsap
+      .to(MATERIAL.uniforms['uRandom'], {
+        value: 2.0,
+        duration: TIME,
+        ease: 'power1.out',
+      })
+      .play();
+
+    gsap
+      .fromTo(
+        MATERIAL.uniforms['uDepth'],
+        { value: 40.0 },
+        { value: 4.0, duration: TIME * 1.5, ease: 'power1.out' }
+      )
+      .play();
   }
 
   initThree() {
@@ -85,22 +131,28 @@ export class PerfilComponent implements AfterViewInit {
 
   animate() {
     // console.log('animate');
-    // const DELTA = this.clock.getDelta();
-    // const MATERIAL = this.object.material as RawShaderMaterial;
-    // MATERIAL.uniforms['uTime'].value += DELTA * 5;
+    const DELTA = this.clock.getDelta();
+    const MATERIAL = this.object.material as RawShaderMaterial;
+    this.touchTexture.update();
+    MATERIAL.uniforms['uTime'].value += DELTA;
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(this.animate.bind(this));
   }
 
   addTexture() {
     const loader = new TextureLoader();
-    loader.load('./assets/img/sample-02.png', (texture) => {
+    loader.load('./assets/img/Fotografia.png', (texture) => {
       this.texture = texture;
       // console.log('textura', this.texture);
       this.texture.minFilter = LinearFilter;
       this.texture.magFilter = LinearFilter;
       this.texture.format = RGBAFormat;
       this.initPoints();
+      this.resize();
+      this.initTouch();
+      this.createHitArea();
+      this.animate();
+      this.initPart();
     });
   }
 
@@ -223,7 +275,52 @@ export class PerfilComponent implements AfterViewInit {
 
     const scale = this.fovHeight / this.texture.image.height;
     this.object.scale.set(scale, scale, 1);
-    // if (this.interactive) this.interactive.resize();
-    // if (this.particles) this.particles.resize();
+    this.rect = this.canvas.getBoundingClientRect();
+  }
+  initTouch() {
+    this.touchTexture = new TouchTexture();
+    const MATERIAL = this.object.material as RawShaderMaterial;
+    MATERIAL.uniforms['uTouch'].value = this.touchTexture.texture;
+  }
+
+  createHitArea() {
+    const GEOMETRY = new PlaneGeometry(
+      this.texture.image.width,
+      this.texture.image.height,
+      1,
+      1
+    );
+    const MATERIAL = new MeshBasicMaterial({ color: 0xffffff });
+    MATERIAL.visible = false;
+    this.planeHit = new Mesh(GEOMETRY, MATERIAL);
+    this.container.add(this.planeHit);
+  }
+
+  moveTouch(e: TouchEvent | MouseEvent) {
+    let posPoint: pos[] = [];
+    const addPOints = (x: number, y: number) => {
+      const point: Vector2 = new Vector2(x, y);
+      point.x = ((point.x + this.rect.x) / this.rect.width) * 2 - 1;
+      point.y = -((point.y + this.rect.y) / this.rect.height) * 2 + 1;
+      this.raysCaster.setFromCamera(point, this.camera);
+      const intersects = this.raysCaster.intersectObject(this.planeHit);
+      if (intersects.length > 0) {
+        const objectIntersect = intersects[0];
+        posPoint.push({
+          x: objectIntersect.uv!.x,
+          y: objectIntersect.uv!.y,
+        });
+      }
+    };
+    if (e instanceof TouchEvent) {
+      for (let index = 0; index < e.touches.length; index++) {
+        const touch = e.touches[index];
+        addPOints(touch.clientX, touch.clientY);
+      }
+    }
+    if (e instanceof MouseEvent) {
+      addPOints(e.clientX, e.clientY);
+    }
+    this.touchTexture.addTouch(posPoint);
   }
 }
