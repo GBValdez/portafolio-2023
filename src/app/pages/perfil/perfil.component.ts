@@ -85,7 +85,7 @@ export class PerfilComponent implements AfterViewInit {
         MATERIAL.uniforms['uSize'],
         { value: 0.0 },
         {
-          value: 1.5,
+          value: 2,
           duration: TIME,
           ease: 'power1.out',
           onUpdate: (s) => {
@@ -141,7 +141,7 @@ export class PerfilComponent implements AfterViewInit {
 
   addTexture() {
     const loader = new TextureLoader();
-    loader.load('./assets/img/Fotografia.png', (texture) => {
+    loader.load('./assets/img/StartGB.png', (texture) => {
       this.texture = texture;
       // console.log('textura', this.texture);
       this.texture.minFilter = LinearFilter;
@@ -184,14 +184,18 @@ export class PerfilComponent implements AfterViewInit {
     const ORIGINAL_COLORS = Float32Array.from(IMG_DATA.data);
 
     for (let i = 0; i < numPoints; i++) {
-      if (ORIGINAL_COLORS[i * 4 + 0] > threshold) numVisible++;
+      const prom =
+        ORIGINAL_COLORS[i * 4 + 0] +
+        ORIGINAL_COLORS[i * 4 + 1] +
+        ORIGINAL_COLORS[i * 4 + 2] / 3;
+      if (prom > threshold) numVisible++;
     }
 
     const UNIFORMS = {
       uTime: { value: 0 },
       uRandom: { value: 2.0 },
       uDepth: { value: 4.0 },
-      uSize: { value: 1.5 },
+      uSize: { value: 2 },
       uTextureSize: {
         value: new Vector2(this.texture.image.width, this.texture.image.height),
       },
@@ -232,7 +236,11 @@ export class PerfilComponent implements AfterViewInit {
     const ANGLES = new Float32Array(numVisible);
 
     for (let i = 0, j = 0; i < numPoints; i++) {
-      if (ORIGINAL_COLORS[i * 4 + 0] <= threshold) continue;
+      const prom =
+        ORIGINAL_COLORS[i * 4 + 0] +
+        ORIGINAL_COLORS[i * 4 + 1] +
+        ORIGINAL_COLORS[i * 4 + 2] / 3;
+      if (prom <= threshold) continue;
 
       OFFSETS[j * 3 + 0] = i % this.texture.image.width;
       OFFSETS[j * 3 + 1] = Math.floor(i / this.texture.image.width);
