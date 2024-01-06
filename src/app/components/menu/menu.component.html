@@ -1,0 +1,16 @@
+<nav
+  [ngClass]="{ 'text-white': !dark, btnDark: dark }"
+  class="fixed w-full justify-start h-screen items-center mr-4 flex pointer-events-none"
+>
+  <ol class="list-none pointer-events-auto">
+    <li
+      *ngFor="let item of buttons"
+      class="ml-5 flex flex-col justify-center m-2 items-center cursor-pointer opacity-50 hover:opacity-100"
+      [routerLink]="item.link"
+      [routerLinkActive]="['opacity-100', 'pl-3']"
+    >
+      <mat-icon>{{ item.icon }}</mat-icon>
+      <p class="font-black text-xs">{{ item.text }}</p>
+    </li>
+  </ol>
+</nav>

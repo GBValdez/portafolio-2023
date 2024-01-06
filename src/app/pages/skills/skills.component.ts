@@ -23,11 +23,13 @@ import {
   World,
 } from 'matter-js';
 import { skillBody, skillLogos, skillsInfo, skillsShow } from './skills';
-
+import { ModalSkillsComponent } from './modals/modal-skills/modal-skills.component';
+import { MatDialog } from '@angular/material/dialog';
+import { BtnDirective } from 'src/app/directives/btn.directive';
 @Component({
   selector: 'app-skills',
   standalone: true,
-  imports: [NgStyle, NgFor, NgClass],
+  imports: [NgStyle, NgFor, NgClass, ModalSkillsComponent, BtnDirective],
   templateUrl: './skills.component.html',
   styleUrl: './skills.component.scss',
 })
@@ -36,10 +38,17 @@ export class SkillsComponent implements AfterViewInit, OnInit {
   interval!: NodeJS.Timeout | null;
   boxBodies: Body[] = [];
   skillsShow: skillsShow[] = [];
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private dialog: MatDialog
+  ) {}
   ngOnInit(): void {
     this.preloadImgs();
   }
+  openList(): void {
+    this.dialog.open(ModalSkillsComponent, { width: '50%', minWidth: '300px' });
+  }
+
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.createScene();
@@ -125,6 +134,10 @@ export class SkillsComponent implements AfterViewInit, OnInit {
           ...this.boxBodies,
           Bodies.circle(xCurrent + space, yCurrent + 150, 10, {
             isStatic: true,
+            render: {
+              fillStyle: '#000229',
+              strokeStyle: '#000229',
+            },
           }),
         ];
         xCurrent += 150;

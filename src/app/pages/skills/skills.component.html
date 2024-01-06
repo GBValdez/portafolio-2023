@@ -1,6 +1,7 @@
 <section #view class="w-screen h-screen"></section>
+
 <section
-  class="fixed w-screen h-screen top-0 left-0 flex justify-center items-center z-[-1000] pointer-events-none"
+  class="today fixed w-screen h-screen top-0 left-0 flex justify-center items-center z-[-1000] pointer-events-none"
 >
   <div
     class="flex-col items-center justify-center opacity-80"
@@ -12,4 +13,8 @@
       {{ createName(skill.logo) }}
     </h2>
   </div>
+</section>
+
+<section class="fixed top-0 left-0 w-screen flex justify-end">
+  <button appBtn class="m-5" (click)="openList()">Ver listado</button>
 </section>

@@ -31,11 +31,12 @@ import {
 
 import gsap from 'gsap';
 import { FaceComponent } from '@components/face/face.component';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FaceComponent],
+  imports: [MatIconModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
@@ -103,6 +104,8 @@ export class HomeComponent implements AfterViewInit {
   }
   @ViewChild('canvas') private canvasRef!: ElementRef;
 
+  timeOutButter!: NodeJS.Timeout;
+
   initComponents(): void {
     const textureLoadaer = new TextureLoader();
     const TEXTURES: Texture[] = [];
@@ -114,7 +117,7 @@ export class HomeComponent implements AfterViewInit {
       texture.premultiplyAlpha = false;
     });
     let butterNum: number = 0;
-    const TIMEOUT = setInterval(() => {
+    this.timeOutButter = setInterval(() => {
       const BUTTERFLY = new butterfly(
         TEXTURES,
         this.sizeScreen,
@@ -132,7 +135,7 @@ export class HomeComponent implements AfterViewInit {
       butterNum++;
       console.log(butterNum);
       if (butterNum > 99) {
-        clearTimeout(TIMEOUT);
+        clearTimeout(this.timeOutButter);
       }
     }, 250);
   }
