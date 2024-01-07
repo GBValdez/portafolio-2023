@@ -24,7 +24,7 @@ export class ModalSkillsComponent {
 
         {
           name: 'Ionic',
-          img: '',
+          img: './assets/img/logos/ionic.svg',
         },
         {
           name: 'HTML',

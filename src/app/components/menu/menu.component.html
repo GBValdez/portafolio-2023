@@ -1,6 +1,6 @@
 <nav
   [ngClass]="{ 'text-white': !dark, btnDark: dark }"
-  class="fixed w-full h-screen sm:items-center items-end sm:mr-4 flex pointer-events-none sm:justify-start justify-center"
+  class="fixed w-full h-screen sm:items-center items-end flex pointer-events-none sm:justify-start justify-center"
 >
   <ol
     class="list-none pointer-events-auto flex sm:flex-col sm:ml-4 sm:mb-0 mb-[20px]"
@@ -9,7 +9,7 @@
       *ngFor="let item of buttons"
       class="flex flex-col justify-center m-2 items-center cursor-pointer opacity-50 hover:opacity-100"
       [routerLink]="item.link"
-      [routerLinkActive]="['opacity-100']"
+      [routerLinkActive]="['sm:pl-3', 'sm:pb-0', 'pb-3', 'selected']"
     >
       <mat-icon>{{ item.icon }}</mat-icon>
       <p class="font-black text-xs">{{ item.text }}</p>
