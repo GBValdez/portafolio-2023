@@ -1,11 +1,13 @@
 <div class="p-5 contentXD">
   <mat-dialog-content>
-    <h2 class="font-black text-4xl border-b-2 border-gray-400">Habilidades</h2>
+    <h2 class="font-black text-4xl border-b-2 border-gray-400 text-blue-950">
+      Habilidades
+    </h2>
 
     <mat-card *ngFor="let category of skills" class="mt-1">
       <mat-card-header>
         <mat-card-title>
-          <h2 class="font-black text-2xl">
+          <h2 class="font-black text-2xl text-blue-900">
             {{ category.name }}
           </h2>
         </mat-card-title>
@@ -14,7 +16,7 @@
         <ol class="flex flex-wrap">
           <li
             *ngFor="let skill of category.skills"
-            class="flex items-center m-1 border-2 border-blue-300 p-2 rounded-full"
+            class="flex items-center border-2 border-blue-300 p-2 rounded-full"
           >
             <img
               class="w-[30px] h-[30px] mr-2"

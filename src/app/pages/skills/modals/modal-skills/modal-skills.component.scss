@@ -4,3 +4,9 @@ mat-card {
 h2 {
   color: c;
 }
+
+li {
+  margin: 5px;
+  width: calc(33% - 10px);
+  min-width: 150px;
+}
