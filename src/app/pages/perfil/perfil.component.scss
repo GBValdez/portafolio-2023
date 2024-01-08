@@ -1,4 +1,25 @@
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Pacifico&family=Rubik+Bubbles&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Pacifico&family=Rubik+Bubbles&family=Titan+One&display=swap");
+
 section {
   background: linear-gradient(to top, rgb(1, 0, 22), rgb(2, 0, 102));
   background: rgb(2, 0, 53);
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+.message {
+  background: rgba(255, 255, 255, 0.534);
+  border-radius: 20px;
+  padding: 10px;
+}
+.cardMe {
+  background: transparent !important;
+}
+
+h1,
+h2 {
+  font-family: Titan One;
 }

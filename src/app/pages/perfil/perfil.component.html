@@ -3,5 +3,23 @@
   (mousemove)="moveTouch($event)"
   (touchmove)="moveTouch($event)"
 >
-  <canvas class="w-full h-full" #canvas></canvas>
+  <canvas class="h-full opacity-60" #canvas></canvas>
+</section>
+<section
+  class="fixed w-full h-screen left-0 right-0 mx-auto top-0 cardMe flex justify-center items-center pointer-events-none"
+>
+  <div class="text-white w-[50%] min-w-[300px]">
+    <h1 class="text-4xl mb-[5px]">Sobre mi</h1>
+    <p class="font-bold text-xl">
+      Hola, soy Gabriel Valdez, soy una persona autodidacta que nunca deja de
+      aprender, que le gusta hacer realidad las ideas más alucinantes mediante
+      código y dar experiencias increíbles al usuario.
+    </p>
+    <h2 class="text-2xl mt-[5px]">Hobbies</h2>
+    <ol class="list-disc pl-[20px] font-bold">
+      <li>Jugar Basketball</li>
+      <li>Jugar y crear videojuego</li>
+      <li>Aprender cosas nuevas</li>
+    </ol>
+  </div>
 </section>
