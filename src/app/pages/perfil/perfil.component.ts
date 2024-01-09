@@ -61,11 +61,12 @@ export class PerfilComponent implements AfterViewInit, OnDestroy {
         }
       });
     // Limpiar objetos, materiales y texturas específicos
-
-    this.object.geometry.dispose();
-    const MATERIAL = this.object.material as RawShaderMaterial;
-    MATERIAL.dispose();
-    this.texture.dispose();
+    if (this.object) {
+      this.object.geometry.dispose();
+      const MATERIAL = this.object.material as RawShaderMaterial;
+      MATERIAL.dispose();
+    }
+    if (this.texture) this.texture.dispose();
 
     // Limpiar y eliminar la cámara y la escena
     this.scene = null;

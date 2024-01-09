@@ -113,6 +113,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     if (this.renderer) this.renderer.dispose();
   }
   private butterFlies: butterfly[] = [];
+  get butterFiles(): butterfly[] {
+    return this.butterFlies;
+  }
+  set butterFiles(butterFlies: butterfly[]) {
+    this.butterFlies = butterFlies;
+  }
   initTween() {
     this.audioHtml.volume = 0;
     this.tween = gsap.to(this.audioHtml, {
@@ -172,10 +178,10 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     return this.canvasRef.nativeElement;
   }
 
-  private camera: OrthographicCamera | null = null;
+  camera: OrthographicCamera | null = null;
 
-  private renderer!: WebGLRenderer;
-  private scene: Scene | null = null;
+  renderer!: WebGLRenderer;
+  scene: Scene | null = null;
 
   // circulo!: Mesh;
   private createScene(): void {

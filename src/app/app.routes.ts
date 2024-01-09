@@ -1,12 +1,10 @@
 import { Routes } from '@angular/router';
-import { deleteInterButterGuard } from '@guards/delete-inter-butter.guard';
 
 export const routes: Routes = [
   {
     path: 'home',
     loadComponent: () =>
       import('@pages/home/home.component').then((m) => m.HomeComponent),
-    canDeactivate: [deleteInterButterGuard],
   },
   {
     path: 'skills',
@@ -18,6 +16,13 @@ export const routes: Routes = [
     path: 'perfil',
     loadComponent: () =>
       import('@pages/perfil/perfil.component').then((m) => m.PerfilComponent),
+  },
+  {
+    path: 'contact',
+    loadComponent: () =>
+      import('@pages/contact/contact.component').then(
+        (m) => m.ContactComponent
+      ),
   },
   {
     path: '**',
