@@ -41,7 +41,7 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
-export class HomeComponent implements AfterViewInit, OnDestroy {
+export class HomeComponent implements AfterViewInit {
   @ViewChild('audio', { static: true }) Music!: ElementRef;
 
   @HostListener('window:resize', ['$event'])
@@ -85,7 +85,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   time: number = 0;
   mousePosition: Vector3 = new Vector3(0, 0, 0);
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
-  ngOnDestroy(): void {
+  destroy(): void {
     if (this.timeOutButter) {
       clearInterval(this.timeOutButter);
     }
@@ -113,12 +113,6 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     if (this.renderer) this.renderer.dispose();
   }
   private butterFlies: butterfly[] = [];
-  get butterFiles(): butterfly[] {
-    return this.butterFlies;
-  }
-  set butterFiles(butterFlies: butterfly[]) {
-    this.butterFlies = butterFlies;
-  }
   initTween() {
     this.audioHtml.volume = 0;
     this.tween = gsap.to(this.audioHtml, {
@@ -178,10 +172,10 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     return this.canvasRef.nativeElement;
   }
 
-  camera: OrthographicCamera | null = null;
+  private camera: OrthographicCamera | null = null;
 
-  renderer!: WebGLRenderer;
-  scene: Scene | null = null;
+  private renderer!: WebGLRenderer;
+  private scene: Scene | null = null;
 
   // circulo!: Mesh;
   private createScene(): void {

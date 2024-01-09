@@ -42,10 +42,5 @@ export class AppComponent {
       link: '/projects',
       icon: 'code',
     },
-    {
-      text: 'Contacto',
-      link: '/contact',
-      icon: 'phone',
-    },
   ];
 }

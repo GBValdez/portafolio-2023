@@ -34,7 +34,7 @@ import { BtnDirective } from 'src/app/directives/btn.directive';
   templateUrl: './skills.component.html',
   styleUrl: './skills.component.scss',
 })
-export class SkillsComponent implements AfterViewInit, OnInit, OnDestroy {
+export class SkillsComponent implements AfterViewInit, OnInit {
   skillsBodies: skillBody[] = [];
   interval!: NodeJS.Timeout | null;
   boxBodies: Body[] = [];
@@ -46,7 +46,7 @@ export class SkillsComponent implements AfterViewInit, OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: Object,
     private dialog: MatDialog
   ) {}
-  ngOnDestroy(): void {
+  destroy(): void {
     this.stopInterval();
     if (this.interval) clearInterval(this.interval);
     if (this.boxInterval) clearInterval(this.boxInterval);

@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { CanDeactivateFn } from '@angular/router';
 
-import { homeGuard } from './home.guard';
+import { destroyComponentGuard } from './destroy-component.guard';
 
-describe('homeGuard', () => {
+describe('destroyComponentGuard', () => {
   const executeGuard: CanDeactivateFn = (...guardParameters) => 
-      TestBed.runInInjectionContext(() => homeGuard(...guardParameters));
+      TestBed.runInInjectionContext(() => destroyComponentGuard(...guardParameters));
 
   beforeEach(() => {
     TestBed.configureTestingModule({});

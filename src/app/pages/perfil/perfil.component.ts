@@ -37,17 +37,18 @@ import { FRAGMENT } from './glsl/fragment';
 import { TouchTexture } from '@myClass/touchTexture';
 import { pos } from '@interfaces/screen-three.interface';
 import gsap from 'gsap';
+import { BtnDirective } from 'src/app/directives/btn.directive';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [],
+  imports: [BtnDirective],
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.scss',
 })
-export class PerfilComponent implements AfterViewInit, OnDestroy {
+export class PerfilComponent implements AfterViewInit {
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
-  ngOnDestroy(): void {
+  destroy(): void {
     if (this.animationId) cancelAnimationFrame(this.animationId);
     if (this.scene)
       this.scene.traverse((object) => {
