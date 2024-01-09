@@ -44,6 +44,10 @@ export class butterfly {
     return degreesToRadians(this.anglesDegrees);
   }
 
+  dispose(): void {
+    this.material.dispose();
+  }
+
   private screenSize!: sizeThreeCanvas;
   private mousePosition!: Vector3;
 

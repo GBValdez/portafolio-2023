@@ -5,6 +5,7 @@ import {
   ElementRef,
   HostListener,
   Inject,
+  OnDestroy,
   OnInit,
   PLATFORM_ID,
   ViewChild,
@@ -33,15 +34,37 @@ import { BtnDirective } from 'src/app/directives/btn.directive';
   templateUrl: './skills.component.html',
   styleUrl: './skills.component.scss',
 })
-export class SkillsComponent implements AfterViewInit, OnInit {
+export class SkillsComponent implements AfterViewInit, OnInit, OnDestroy {
   skillsBodies: skillBody[] = [];
   interval!: NodeJS.Timeout | null;
   boxBodies: Body[] = [];
   skillsShow: skillsShow[] = [];
+  runner: Runner | null = null;
+  mouseConstraint: MouseConstraint | null = null;
+  boxInterval!: NodeJS.Timeout;
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private dialog: MatDialog
   ) {}
+  ngOnDestroy(): void {
+    this.stopInterval();
+    if (this.interval) clearInterval(this.interval);
+    if (this.boxInterval) clearInterval(this.boxInterval);
+    Runner.stop(this.runner!);
+    Render.stop(this.render!);
+    if (this.render!.canvas) this.render!.canvas.remove();
+    this.render!.textures = {};
+    Events.off(this.engine, 'beforeUpdate', this.updateFixed);
+    Events.off(this.mouseConstraint, 'startdrag', this.startDragMouse);
+    Events.off(MouseConstraint, 'enddrag', this.endDragMouse);
+    World.remove(this.engine!.world, this.mouseConstraint!);
+    World.clear(this.engine!.world, false);
+    Engine.clear(this.engine!);
+    this.engine = null;
+    this.render = null;
+    this.runner = null;
+    this.mouseConstraint = null;
+  }
   ngOnInit(): void {
     this.preloadImgs();
   }
@@ -67,9 +90,9 @@ export class SkillsComponent implements AfterViewInit, OnInit {
   }
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
-    this.render.canvas.width = this.canvas.nativeElement.clientWidth;
-    this.render.canvas.height = this.canvas.nativeElement.clientHeight;
-    console.log('width ' + this.render.canvas.width);
+    this.render!.canvas.width = this.canvas.nativeElement.clientWidth;
+    this.render!.canvas.height = this.canvas.nativeElement.clientHeight;
+    console.log('width ' + this.render!.canvas.width);
     this.addPoints();
   }
 
@@ -85,30 +108,31 @@ export class SkillsComponent implements AfterViewInit, OnInit {
     }
   }
 
-  update(): void {
-    Events.on(this.engine, 'beforeUpdate', (event) => {
-      this.skillsBodies.forEach((body) => {
-        if (body.body.position.y > window.innerHeight + 50) {
-          Body.setPosition(body.body, { x: body.body.position.x, y: -50 });
-        }
-        if (body.body.position.x > window.innerWidth + 50) {
-          Body.setPosition(body.body, { x: -50, y: body.body.position.y });
-        }
-        if (body.body.position.x < -50) {
-          Body.setPosition(body.body, {
-            x: window.innerWidth + 50,
-            y: body.body.position.y,
-          });
-        }
-      });
-      // console.log(event);
+  updateFixed = () => {
+    this.skillsBodies.forEach((body) => {
+      if (body.body.position.y > window.innerHeight + 50) {
+        Body.setPosition(body.body, { x: body.body.position.x, y: -50 });
+      }
+      if (body.body.position.x > window.innerWidth + 50) {
+        Body.setPosition(body.body, { x: -50, y: body.body.position.y });
+      }
+      if (body.body.position.x < -50) {
+        Body.setPosition(body.body, {
+          x: window.innerWidth + 50,
+          y: body.body.position.y,
+        });
+      }
     });
+  };
+
+  update(): void {
+    Events.on(this.engine, 'beforeUpdate', this.updateFixed);
   }
 
   createScene(): void {
     this.render = Render.create({
       element: this.canvas.nativeElement,
-      engine: this.engine,
+      engine: this.engine!,
       options: {
         width: this.canvas.nativeElement.clientWidth,
         height: this.canvas.nativeElement.clientHeight,
@@ -116,13 +140,13 @@ export class SkillsComponent implements AfterViewInit, OnInit {
         background: 'transparent',
       },
     });
-    Runner.run(this.engine);
+    this.runner = Runner.run(this.engine!);
     Render.run(this.render);
   }
 
   addPoints(): void {
     this.boxBodies.forEach((body) => {
-      Composite.remove(this.engine.world, body);
+      Composite.remove(this.engine!.world, body);
     });
     this.boxBodies = [];
     let yCurrent: number = 0;
@@ -144,29 +168,32 @@ export class SkillsComponent implements AfterViewInit, OnInit {
       }
       yCurrent += 150;
     }
-    Composite.add(this.engine.world, this.boxBodies);
+    Composite.add(this.engine!.world, this.boxBodies);
   }
+
+  startDragMouse = (event: any) => {
+    const BODY = this.skillsBodies.find(
+      (body) => body.body === event.source.body
+    );
+    if (!BODY) return;
+    this.stopInterval();
+    const INDEX: number = this.skillsShow.findIndex(
+      (body) => body.logo === BODY.logo
+    );
+    this.changeLogo(INDEX);
+  };
+  endDragMouse = (event: any) => {
+    this.startInterval();
+  };
 
   addBase(): void {
     this.addPoints();
-    const mouse = Mouse.create(this.render.canvas);
-    const MOUSE_CONSTRAINTS = MouseConstraint.create(this.engine, { mouse });
-    Composite.add(this.engine.world, [MOUSE_CONSTRAINTS]);
+    const mouse = Mouse.create(this.render!.canvas);
+    this.mouseConstraint = MouseConstraint.create(this.engine!, { mouse });
+    Composite.add(this.engine!.world, [this.mouseConstraint]);
 
-    Events.on(MOUSE_CONSTRAINTS, 'startdrag', (event) => {
-      const BODY = this.skillsBodies.find(
-        (body) => body.body === event.source.body
-      );
-      if (!BODY) return;
-      this.stopInterval();
-      const INDEX: number = this.skillsShow.findIndex(
-        (body) => body.logo === BODY.logo
-      );
-      this.changeLogo(INDEX);
-    });
-    Events.on(MOUSE_CONSTRAINTS, 'enddrag', (event) => {
-      this.startInterval();
-    });
+    Events.on(this.mouseConstraint, 'startdrag', this.startDragMouse);
+    Events.on(MouseConstraint, 'enddrag', this.endDragMouse);
   }
 
   changeLogo(index: number): void {
@@ -184,7 +211,7 @@ export class SkillsComponent implements AfterViewInit, OnInit {
 
   addBox(): void {
     let NUM: number = 0;
-    const interval = setInterval(() => {
+    this.boxInterval = setInterval(() => {
       const currentSkill: skillsInfo = skillLogos[NUM];
       const newBall: skillBody = {
         body: Bodies.circle(window.innerWidth * Math.random(), -100, 50, {
@@ -205,15 +232,15 @@ export class SkillsComponent implements AfterViewInit, OnInit {
         logo: currentSkill.logo,
       };
       this.skillsBodies = [...this.skillsBodies, newBall];
-      Composite.add(this.engine.world, newBall.body);
+      Composite.add(this.engine!.world, newBall.body);
       NUM++;
       if (NUM > skillLogos.length - 1) {
-        clearInterval(interval);
+        clearInterval(this.boxInterval);
       }
     }, 300);
   }
   @ViewChild('view') canvas!: ElementRef<HTMLCanvasElement>;
-  engine: Engine = Engine.create();
+  engine: Engine | null = Engine.create();
 
-  render!: Render;
+  render: Render | null = null;
 }

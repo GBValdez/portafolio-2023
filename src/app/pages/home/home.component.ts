@@ -6,6 +6,7 @@ import {
   ElementRef,
   HostListener,
   Inject,
+  OnDestroy,
   PLATFORM_ID,
   ViewChild,
 } from '@angular/core';
@@ -40,7 +41,7 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
-export class HomeComponent implements AfterViewInit {
+export class HomeComponent implements AfterViewInit, OnDestroy {
   @ViewChild('audio', { static: true }) Music!: ElementRef;
 
   @HostListener('window:resize', ['$event'])
@@ -50,12 +51,12 @@ export class HomeComponent implements AfterViewInit {
     const frustumSize = 10; // Ajusta este valor según sea necesario para tu escena
     const frustumHalfHeight = frustumSize / 2;
     const frustumHalfWidth = frustumHalfHeight * aspect;
-    this.camera.left = -frustumHalfWidth;
-    this.camera.right = frustumHalfWidth;
-    this.camera.top = frustumHalfHeight;
-    this.camera.bottom = -frustumHalfHeight;
+    this.camera!.left = -frustumHalfWidth;
+    this.camera!.right = frustumHalfWidth;
+    this.camera!.top = frustumHalfHeight;
+    this.camera!.bottom = -frustumHalfHeight;
     // Actualiza la matriz de proyección de la cámara
-    this.camera.updateProjectionMatrix();
+    this.camera!.updateProjectionMatrix();
 
     // Actualiza el tamaño del renderizador
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -72,7 +73,7 @@ export class HomeComponent implements AfterViewInit {
 
   volumen: { value: number } = { value: 0 };
   tween!: GSAPTween;
-
+  animationFrameId!: number;
   get audioHtml(): HTMLAudioElement {
     return this.Music.nativeElement;
   }
@@ -84,6 +85,33 @@ export class HomeComponent implements AfterViewInit {
   time: number = 0;
   mousePosition: Vector3 = new Vector3(0, 0, 0);
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  ngOnDestroy(): void {
+    if (this.timeOutButter) {
+      clearInterval(this.timeOutButter);
+    }
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      console.log('cancelAnimationFrame');
+    }
+    this.butterFlies.forEach((butterfly) => {
+      butterfly.dispose();
+    });
+    this.butterFlies = [];
+    if (this.scene)
+      this.scene.traverse((object) => {
+        if (object instanceof Mesh) {
+          if (object.material) {
+            object.material.dispose();
+          }
+          if (object.geometry) {
+            object.geometry.dispose();
+          }
+        }
+      });
+    this.scene = null;
+    this.camera = null;
+    if (this.renderer) this.renderer.dispose();
+  }
   private butterFlies: butterfly[] = [];
   initTween() {
     this.audioHtml.volume = 0;
@@ -131,7 +159,7 @@ export class HomeComponent implements AfterViewInit {
 
       this.butterFlies.push(BUTTERFLY);
 
-      this.scene.add(BUTTERFLY.sprite);
+      this.scene!.add(BUTTERFLY.sprite);
       butterNum++;
       console.log(butterNum);
       if (butterNum > 99) {
@@ -144,10 +172,10 @@ export class HomeComponent implements AfterViewInit {
     return this.canvasRef.nativeElement;
   }
 
-  private camera!: OrthographicCamera;
+  private camera: OrthographicCamera | null = null;
 
   private renderer!: WebGLRenderer;
-  private scene!: Scene;
+  private scene: Scene | null = null;
 
   // circulo!: Mesh;
   private createScene(): void {
@@ -188,9 +216,9 @@ export class HomeComponent implements AfterViewInit {
     this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
     const component: HomeComponent = this;
     const animate = () => {
-      requestAnimationFrame(animate);
+      this.animationFrameId = requestAnimationFrame(animate);
       component.animateCube();
-      this.renderer.render(this.scene, this.camera);
+      this.renderer.render(this.scene!, this.camera!);
     };
     animate();
   }
@@ -205,8 +233,8 @@ export class HomeComponent implements AfterViewInit {
       -((evt.clientY - bounds.top) / bounds.height) * 2 + 1;
 
     // Aquí puedes ajustar las coordenadas del mouse dependiendo del rango de tu cámara ortográfica
-    this.mousePosition.x *= (this.camera.right - this.camera.left) / 2;
-    this.mousePosition.y *= (this.camera.top - this.camera.bottom) / 2;
+    this.mousePosition.x *= (this.camera!.right - this.camera!.left) / 2;
+    this.mousePosition.y *= (this.camera!.top - this.camera!.bottom) / 2;
   }
   async playMusicFunction() {
     this.playMusic = !this.playMusic;

@@ -5,6 +5,7 @@ import {
   ElementRef,
   HostListener,
   Inject,
+  OnDestroy,
   OnInit,
   PLATFORM_ID,
   ViewChild,
@@ -44,8 +45,35 @@ import gsap from 'gsap';
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.scss',
 })
-export class PerfilComponent implements AfterViewInit {
+export class PerfilComponent implements AfterViewInit, OnDestroy {
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  ngOnDestroy(): void {
+    if (this.animationId) cancelAnimationFrame(this.animationId);
+    if (this.scene)
+      this.scene.traverse((object) => {
+        if (object instanceof Mesh) {
+          if (object.material) {
+            object.material.dispose();
+          }
+          if (object.geometry) {
+            object.geometry.dispose();
+          }
+        }
+      });
+    // Limpiar objetos, materiales y texturas específicos
+
+    this.object.geometry.dispose();
+    const MATERIAL = this.object.material as RawShaderMaterial;
+    MATERIAL.dispose();
+    this.texture.dispose();
+
+    // Limpiar y eliminar la cámara y la escena
+    this.scene = null;
+    this.camera = null;
+
+    // Limpiar el renderizador
+    this.renderer.dispose();
+  }
   @HostListener('window:resize', ['$event']) onResize(event: any) {
     this.resize();
   }
@@ -54,15 +82,15 @@ export class PerfilComponent implements AfterViewInit {
     if (isPlatformBrowser(this.platformId)) {
       this.initThree();
       this.container = new Object3D();
-      this.scene.add(this.container);
+      this.scene!.add(this.container);
       this.addTexture();
     }
   }
   private clock!: Clock;
-  private camera!: PerspectiveCamera;
+  private camera: PerspectiveCamera | null = null;
   private fovHeight: number = 0;
   private renderer!: WebGLRenderer;
-  private scene!: Scene;
+  private scene: Scene | null = null;
   private texture!: Texture;
   private rect!: DOMRect;
 
@@ -70,6 +98,7 @@ export class PerfilComponent implements AfterViewInit {
   private object!: Mesh;
   private raysCaster: Raycaster = new Raycaster();
   private planeHit!: Mesh;
+  private animationId!: number;
 
   touchTexture!: TouchTexture;
   @ViewChild('canvas') private canvasRef!: ElementRef;
@@ -135,8 +164,8 @@ export class PerfilComponent implements AfterViewInit {
     const MATERIAL = this.object.material as RawShaderMaterial;
     this.touchTexture.update();
     MATERIAL.uniforms['uTime'].value += DELTA;
-    this.renderer.render(this.scene, this.camera);
-    requestAnimationFrame(this.animate.bind(this));
+    this.renderer.render(this.scene!, this.camera!);
+    this.animationId = requestAnimationFrame(this.animate.bind(this));
   }
 
   addTexture() {
@@ -271,13 +300,13 @@ export class PerfilComponent implements AfterViewInit {
 
   resize() {
     if (!this.renderer) return;
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
+    this.camera!.aspect = window.innerWidth / window.innerHeight;
+    this.camera!.updateProjectionMatrix();
 
     this.fovHeight =
       2 *
-      Math.tan((this.camera.fov * Math.PI) / 180 / 2) *
-      this.camera.position.z;
+      Math.tan((this.camera!.fov * Math.PI) / 180 / 2) *
+      this.camera!.position.z;
 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -310,7 +339,7 @@ export class PerfilComponent implements AfterViewInit {
       const point: Vector2 = new Vector2(x, y);
       point.x = ((point.x + this.rect.x) / this.rect.width) * 2 - 1;
       point.y = -((point.y + this.rect.y) / this.rect.height) * 2 + 1;
-      this.raysCaster.setFromCamera(point, this.camera);
+      this.raysCaster.setFromCamera(point, this.camera!);
       const intersects = this.raysCaster.intersectObject(this.planeHit);
       if (intersects.length > 0) {
         const objectIntersect = intersects[0];
