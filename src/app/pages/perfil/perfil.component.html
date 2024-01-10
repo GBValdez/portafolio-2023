@@ -22,7 +22,12 @@
       <li>Aprender cosas nuevas</li>
     </ol>
     <div class="flex justify-end">
-      <button appBtn class="ml-3 pointer-events-auto" [white]="true">
+      <button
+        appBtn
+        class="ml-3 pointer-events-auto"
+        [white]="true"
+        (click)="showCV()"
+      >
         Ver CV
       </button>
       <button appBtn class="ml-3 pointer-events-auto" [white]="true">

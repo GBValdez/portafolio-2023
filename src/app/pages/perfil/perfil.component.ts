@@ -362,4 +362,11 @@ export class PerfilComponent implements AfterViewInit {
     }
     this.touchTexture.addTouch(posPoint);
   }
+
+  showCV(): void {
+    window.open(
+      'https://drive.google.com/file/d/1q50ZDs_GdZxdsHQKXUXxKyWx4aWGJCGf/view?usp=sharing',
+      '_blank'
+    );
+  }
 }
