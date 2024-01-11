@@ -2,13 +2,13 @@ import { Component } from '@angular/core';
 import { categorySkill } from './skills';
 import { NgFor } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
+import { BtnDirective } from '@directives/btn.directive';
 
 @Component({
   selector: 'app-modal-skills',
   standalone: true,
-  imports: [NgFor, MatCardModule, MatButtonModule, MatDialogModule],
+  imports: [NgFor, MatCardModule, BtnDirective, MatDialogModule],
   templateUrl: './modal-skills.component.html',
   styleUrl: './modal-skills.component.scss',
 })
