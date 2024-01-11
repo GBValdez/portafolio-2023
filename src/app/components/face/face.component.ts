@@ -26,17 +26,21 @@ export class FaceComponent {
     return `translate(${pos.x}px, ${pos.y}px)`;
   }
 
+  @HostListener('document:touchmove', ['$event'])
   @HostListener('document:mousemove', ['$event'])
-  onMouseMove(e: MouseEvent) {
+  onMouseMove(e: MouseEvent | TouchEvent) {
+    const x = e instanceof TouchEvent ? e.touches[0].pageX : e.pageX;
+    const y = e instanceof TouchEvent ? e.touches[0].pageY : e.pageY;
+
     this.eyesRef.forEach((eye, index) => {
       const ELEMENT = eye.nativeElement as HTMLDivElement;
       const RECT = ELEMENT.getBoundingClientRect();
       const DISTANCE = Math.sqrt(
-        Math.pow(RECT.left - e.pageX, 2) + Math.pow(RECT.top - e.pageY, 2)
+        Math.pow(RECT.left - x, 2) + Math.pow(RECT.top - y, 2)
       );
       const FORCE: number = 6;
-      this.eyes[index].x = ((e.pageX - RECT.left) / DISTANCE) * FORCE;
-      this.eyes[index].y = ((e.pageY - RECT.top) / DISTANCE) * FORCE;
+      this.eyes[index].x = ((x - RECT.left) / DISTANCE) * FORCE;
+      this.eyes[index].y = ((y - RECT.top) / DISTANCE) * FORCE;
     });
   }
 }

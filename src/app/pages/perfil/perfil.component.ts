@@ -377,9 +377,8 @@ export class PerfilComponent implements AfterViewInit {
 
   viewContact(): void {
     this.dialog.open(ContactComponent, {
-      width: '40%',
-      minWidth: '275px',
-      height: '80%',
+      width: '50%',
+      minWidth: '270px',
     });
   }
 }
