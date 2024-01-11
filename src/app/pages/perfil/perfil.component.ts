@@ -38,6 +38,8 @@ import { TouchTexture } from '@myClass/touchTexture';
 import { pos } from '@interfaces/screen-three.interface';
 import gsap from 'gsap';
 import { BtnDirective } from 'src/app/directives/btn.directive';
+import { MatDialog } from '@angular/material/dialog';
+import { ContactComponent } from './modals/contact/contact.component';
 
 @Component({
   selector: 'app-perfil',
@@ -47,7 +49,10 @@ import { BtnDirective } from 'src/app/directives/btn.directive';
   styleUrl: './perfil.component.scss',
 })
 export class PerfilComponent implements AfterViewInit {
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private dialog: MatDialog
+  ) {}
   destroy(): void {
     if (this.animationId) cancelAnimationFrame(this.animationId);
     if (this.scene)
@@ -368,5 +373,13 @@ export class PerfilComponent implements AfterViewInit {
       'https://drive.google.com/file/d/1q50ZDs_GdZxdsHQKXUXxKyWx4aWGJCGf/view?usp=sharing',
       '_blank'
     );
+  }
+
+  viewContact(): void {
+    this.dialog.open(ContactComponent, {
+      width: '40%',
+      minWidth: '275px',
+      height: '80%',
+    });
   }
 }

@@ -1,8 +1,8 @@
-<div class="w-[300px] h-[300px] bg-white rounded-full flex items-center">
+<div class="w-[300px] h-[300px] rounded-full flex items-center face">
   <div class="w-full flex justify-center">
     <div
       *ngFor="let eye of eyes"
-      class="w-[70px] h-[100px] mx-3 bg-black rounded-full"
+      class="w-[70px] h-[100px] mx-3 bg-white rounded-full"
       [ngStyle]="{ transform: getTransform(eye) }"
       #eye
     ></div>

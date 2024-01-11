@@ -35,6 +35,9 @@
       "@interfaces/*":[
         "src/app/interfaces/*"
       ],
+      "@directives/*":[
+        "src/app/directives/*"
+      ],
     },
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,

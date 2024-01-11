@@ -1,0 +1,51 @@
+<section
+  class="w-full h-full flex justify-center items-center opacity-30 overflow-hidden"
+>
+  <app-face></app-face>
+</section>
+<section
+  class="absolute top-0 left-0 w-full h-full flex justify-center items-center"
+>
+  <form class="w-[70%]" [formGroup]="form">
+    <h1
+      class="text-3xl font-bold border-b-2 border-gray-400 text-blue-950 mb-[3px]"
+    >
+      Contactame
+    </h1>
+    <div appGbInput class="mb-[10px]">
+      <label #label>Nombre</label>
+      <input #input formControlName="name" />
+    </div>
+    @if (form.get("name")?.invalid && form.get("name")?.touched) {
+    <p class="text-blue-950 font-bold text-right mt-1">El campo es Requerido</p>
+    }
+    <div appGbInput class="mb-[10px]">
+      <label #label>Gmail</label>
+      <input #input formControlName="email" />
+    </div>
+    @if (form.get("email")?.hasError("required") && form.get("email")?.touched)
+    {
+    <p class="text-blue-950 font-bold text-right mt-1">El campo es Requerido</p>
+    } @if (form.get("email")?.hasError("email") ) {
+    <p class="text-blue-950 font-bold text-right mt-1">El email es invalido</p>
+    }
+    <div class="mb-[10px]">
+      <div appGbInput>
+        <label #label>Mensaje</label>
+        <textarea #input formControlName="message"></textarea>
+      </div>
+      @if (form.get("message")?.invalid && form.get("message")?.touched) {
+      <p class="text-blue-950 font-bold text-right">El campo es Requerido</p>
+      }
+    </div>
+
+    <div class="w-full flex justify-center">
+      <Button appBtn class="mx-1" type="button" mat-dialog-close
+        >Cancelar</Button
+      >
+      <button appBtn class="mx-1" type="submit" [disabled]="form.invalid">
+        Enviar
+      </button>
+    </div>
+  </form>
+</section>
