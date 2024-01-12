@@ -4,46 +4,89 @@
   <app-face></app-face>
 </section>
 <section class="z-10 w-full h-full flex justify-center items-center py-[15px]">
-  <form class="w-[70%]" [formGroup]="form">
+  <form class="w-[70%]" [formGroup]="form" (ngSubmit)="send()">
     <h1
       class="text-3xl font-bold border-b-2 border-gray-400 text-blue-950 mb-[3px]"
     >
       Contactame
     </h1>
-    <div appGbInput class="mb-[10px]">
-      <label #label>Nombre</label>
-      <input #input formControlName="name" />
-    </div>
-    @if (form.get("name")?.invalid && form.get("name")?.touched) {
-    <p class="text-blue-950 font-bold text-right mt-1">El campo es Requerido</p>
-    }
-    <div appGbInput class="mb-[10px]">
-      <label #label>Gmail</label>
-      <input #input formControlName="email" />
-    </div>
-    @if (form.get("email")?.hasError("required") && form.get("email")?.touched)
-    {
-    <p class="text-blue-950 font-bold text-right mt-1">El campo es Requerido</p>
-    } @if (form.get("email")?.hasError("email") ) {
-    <p class="text-blue-950 font-bold text-right mt-1">El email es invalido</p>
-    }
-    <div class="mb-[10px]">
-      <div appGbInput>
-        <label #label>Mensaje</label>
-        <textarea #input formControlName="message"></textarea>
+    <div [ngClass]="{ 'opacity-50 ': form.disabled }">
+      <div appGbInput class="mb-[10px]">
+        <label #label>Nombre</label>
+        <input #input (keydown.enter)="gmail.focus()" formControlName="name" />
       </div>
-      @if (form.get("message")?.invalid && form.get("message")?.touched) {
-      <p class="text-blue-950 font-bold text-right">El campo es Requerido</p>
+      @if (form.get("name")?.invalid && form.get("name")?.touched) {
+      <p class="text-blue-950 font-bold text-right mt-1">
+        El campo es Requerido
+      </p>
       }
+      <div appGbInput class="mb-[10px]">
+        <label #label>Gmail</label>
+        <input
+          #input
+          #gmail
+          (keydown.enter)="message.focus()"
+          formControlName="email"
+        />
+      </div>
+      @if (form.get("email")?.hasError("required") &&
+      form.get("email")?.touched) {
+      <p class="text-blue-950 font-bold text-right mt-1">
+        El campo es Requerido
+      </p>
+      } @if (form.get("email")?.hasError("email") ) {
+      <p class="text-blue-950 font-bold text-right mt-1">
+        El email es invalido
+      </p>
+      }
+      <div class="mb-[10px]">
+        <div appGbInput>
+          <label #label>Mensaje</label>
+          <textarea #input #message formControlName="message"></textarea>
+        </div>
+        @if (form.get("message")?.invalid && form.get("message")?.touched) {
+        <p class="text-blue-950 font-bold text-right">El campo es Requerido</p>
+        }
+      </div>
     </div>
 
     <div class="w-full flex justify-center">
-      <Button appBtn class="mx-1" type="button" mat-dialog-close
-        >Cancelar</Button
+      <Button appBtn class="mx-1" type="button" mat-dialog-close>{{
+        form.enabled ? "Cancelar" : "Cerrar"
+      }}</Button>
+      <button
+        appBtn
+        class="mx-1"
+        type="submit"
+        [disabled]="form.invalid || form.disabled"
       >
-      <button appBtn class="mx-1" type="submit" [disabled]="form.invalid">
-        Enviar
+        {{ textSend }}
       </button>
     </div>
+    <section class="mt-[5px]">
+      <ol class="border-blue-950 text-base flex justify-end items-center">
+        <li>
+          <a
+            (click)="copyToClipboard(gmailGB, 'gmail')"
+            href="mailto:{{ gmailGB }}"
+            target="_blank"
+            class="font-bold"
+          >
+            <img src="./assets/img/contact/gmail.svg" class="w-[30px]" />
+          </a>
+        </li>
+        <li class="ml-[2px]">
+          <a
+            (click)="
+              copyToClipboard('https://www.linkedin.com/' + linkedinGB, 'link')
+            "
+            href="https://www.linkedin.com/{{ linkedinGB }}"
+            target="_blank"
+          >
+            <img src="./assets/img/contact/linkedin.svg" class="w-[30px]" />
+          </a>
+        </li>
+      </ol>
+    </section>
   </form>
 </section>

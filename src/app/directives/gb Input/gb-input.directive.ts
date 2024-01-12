@@ -53,7 +53,7 @@ export class GbInputDirective implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.elementRef.nativeElement.className += 'cursor-pointer';
+    this.elementRef.nativeElement.className += 'cursor-pointer ';
     this.originalInput =
       'text-blue-950 bg-transparent w-full h-full m-0 p-3 font-bold focus:outline-none border-blue-950 border-4 rounded-[10px] border-dashed focus:border-blue-600 focus:text-blue-600';
     this.originalLabel = 'cursor-pointer font-bold text-lg text-blue-950';
