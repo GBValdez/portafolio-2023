@@ -92,7 +92,6 @@ export class SkillsComponent implements AfterViewInit, OnInit {
   onResize(event: Event) {
     this.render!.canvas.width = this.canvas.nativeElement.clientWidth;
     this.render!.canvas.height = this.canvas.nativeElement.clientHeight;
-    console.log('width ' + this.render!.canvas.width);
     this.addPoints();
   }
 

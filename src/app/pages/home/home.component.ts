@@ -91,7 +91,6 @@ export class HomeComponent implements AfterViewInit {
     }
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
-      console.log('cancelAnimationFrame');
     }
     this.butterFlies.forEach((butterfly) => {
       butterfly.dispose();
@@ -161,7 +160,6 @@ export class HomeComponent implements AfterViewInit {
 
       this.scene!.add(BUTTERFLY.sprite);
       butterNum++;
-      console.log(butterNum);
       if (butterNum > 99) {
         clearTimeout(this.timeOutButter);
       }

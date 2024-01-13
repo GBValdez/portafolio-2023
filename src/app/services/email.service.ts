@@ -11,7 +11,7 @@ export class EmailService {
   constructor(private httpClient: HttpClient) {}
 
   sendEmail(email: email) {
-    console.log('base ' + this.urlBase);
+    //aa
     return this.httpClient.post(`${this.urlBase}/sendEmail`, email);
   }
 }

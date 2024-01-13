@@ -124,9 +124,6 @@ export class PerfilComponent implements AfterViewInit {
           value: 2,
           duration: TIME,
           ease: 'power1.out',
-          onUpdate: (s) => {
-            console.log('aaa');
-          },
         }
       )
       .play();
@@ -166,7 +163,6 @@ export class PerfilComponent implements AfterViewInit {
   }
 
   animate() {
-    // console.log('animate');
     const DELTA = this.clock.getDelta();
     const MATERIAL = this.object.material as RawShaderMaterial;
     this.touchTexture.update();
@@ -179,7 +175,6 @@ export class PerfilComponent implements AfterViewInit {
     const loader = new TextureLoader();
     loader.load('./assets/img/StartGB.png', (texture) => {
       this.texture = texture;
-      // console.log('textura', this.texture);
       this.texture.minFilter = LinearFilter;
       this.texture.magFilter = LinearFilter;
       this.texture.format = RGBAFormat;
