@@ -33,6 +33,7 @@ import {
 import gsap from 'gsap';
 import { FaceComponent } from '@components/face/face.component';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-home',
@@ -79,12 +80,15 @@ export class HomeComponent implements AfterViewInit {
   }
   urlImg: string = this.getUrlImg();
   playMusic: boolean = false;
-
+  firstPlay: boolean = true;
   buttonPress: { press: boolean } = { press: false };
   sizeScreen!: sizeThreeCanvas;
   time: number = 0;
   mousePosition: Vector3 = new Vector3(0, 0, 0);
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private snackBar: MatSnackBar
+  ) {}
   destroy(): void {
     if (this.timeOutButter) {
       clearInterval(this.timeOutButter);
@@ -240,6 +244,28 @@ export class HomeComponent implements AfterViewInit {
     if (this.playMusic) {
       this.audioHtml.play();
       this.tween.play();
+      if (this.firstPlay) {
+        const a = await this.snackBar.open(
+          `'True heroes' by Alexander Nakarada`,
+          'Leer mas',
+          {
+            duration: 5000,
+          }
+        );
+        a.onAction().subscribe(() => {
+          this.snackBar.open(
+            `True Heroes by Alexander Nakarada (CreatorChords) | https://creatorchords.com
+          Music promoted by https://www.free-stock-music.com
+          Creative Commons / Attribution 4.0 International (CC BY 4.0)
+          https://creativecommons.org/licenses/by/4.0/`,
+            'Cerrar',
+            {
+              duration: 5000,
+            }
+          );
+        });
+        this.firstPlay = false;
+      }
     } else this.tween.reverse();
     await this.tween;
     if (!this.playMusic) this.audioHtml.pause();
