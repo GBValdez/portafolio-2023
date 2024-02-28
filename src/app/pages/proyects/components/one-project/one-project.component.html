@@ -1,0 +1,55 @@
+<section
+  (mouseenter)="enterHover()"
+  (mouseleave)="leaveHover()"
+  (touchstart)="enterHover()"
+  (touchend)="leaveHover()"
+  class="w-full bg-no-repeat bg-cover bg-center py-[70px] flex items-center justify-center"
+  [ngStyle]="{
+    'background-image': this.styleElement,  }"
+  [ngClass]="{ 'sm:h-[400px] h-[550px]': ultime, 'h-[400px]': !ultime }"
+>
+  <div class="w-[80%]">
+    <div>
+      <h2 class="text-white text-2xl">{{ project.title }}</h2>
+      <p class="text-white text-xl font-bold">
+        {{ project.description }}
+      </p>
+    </div>
+    <div>
+      <h3 class="text-white font-black mt-[10px] text-sm mb-[3px]">
+        Tecnologías utilizadas
+      </h3>
+      <div class="flex">
+        @for( tech of project.technologies; track tech){
+        <img
+          [matTooltip]="tech | capitalize"
+          class="mb-5px mr-[5px]"
+          [src]="'./assets/img/logos/' + tech + '.svg'"
+          alt=""
+        />
+        }
+      </div>
+      <div class="flex justify-end mt-[5px]">
+        @if(project.url){
+        <button
+          appBtn
+          class="ml-[10px]"
+          [white]="true"
+          (click)="openLink(project.url)"
+        >
+          Ver proyecto
+        </button>
+        } @if(project.github){
+        <button
+          class="ml-[10px]"
+          [white]="true"
+          appBtn
+          (click)="openLink(project.github)"
+        >
+          Ver código
+        </button>
+        }
+      </div>
+    </div>
+  </div>
+</section>

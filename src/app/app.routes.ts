@@ -22,6 +22,14 @@ export const routes: Routes = [
     canDeactivate: [destroyComponentGuard],
   },
   {
+    path: 'projects',
+    loadComponent: () =>
+      import('@pages/proyects/proyects.component').then(
+        (m) => m.ProyectsComponent
+      ),
+    canDeactivate: [destroyComponentGuard],
+  },
+  {
     path: '**',
     redirectTo: 'home',
   },

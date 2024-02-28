@@ -55,6 +55,10 @@ export class ModalSkillsComponent {
           name: 'SpringBoot',
           img: './assets/img/logos/springboot.svg',
         },
+        {
+          name: 'ASP.NET CORE',
+          img: './assets/img/logos/asp.svg',
+        },
       ],
     },
     {
@@ -73,6 +77,10 @@ export class ModalSkillsComponent {
     {
       name: 'Otros',
       skills: [
+        {
+          name: 'C#',
+          img: './assets/img/logos/cSharp.svg',
+        },
         {
           name: 'Python',
           img: './assets/img/logos/python.svg',

@@ -1,0 +1,14 @@
+<section class="pt-[15px] min-h-screen">
+  <div class="bottom-0 relative">
+    <h1 class="text-4xl mb-[15px] text-white text-center">Proyectos</h1>
+    <div class="flex flex-col">
+      @for( project of projects; track project; let idx = $index ){
+      <app-one-project
+        [project]="project"
+        [ngStyle]="{ 'margin-top': idx != 0 ? '-60px' : '0' }"
+        [ultime]="idx == projects.length - 1"
+      ></app-one-project>
+      }
+    </div>
+  </div>
+</section>

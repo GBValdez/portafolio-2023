@@ -29,4 +29,6 @@ export const skillLogos: skillsInfo[] = [
   { logo: 'tailwind.svg', color: '#06B6D4' },
   { logo: 'typescript.svg', color: '#3178C6' },
   { logo: 'ionic.svg', color: '#3880FF' },
+  { logo: 'cSharp.svg', color: '#512BD4' },
+  { logo: 'asp.svg', color: '#0C2C65' },
 ];
