@@ -365,7 +365,7 @@ export class PerfilComponent implements AfterViewInit {
 
   showCV(): void {
     window.open(
-      'https://drive.google.com/file/d/1vrgym4nMj_oLCi7oecT9TlKVeESb57NE/view?usp=sharing',
+      'https://drive.google.com/file/d/1_kVHDE5F8KPEBvBHUZQhlywGEo_KYPQu/view?usp=sharing',
       '_blank'
     );
   }
