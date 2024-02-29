@@ -67,6 +67,7 @@ export class SkillsComponent implements AfterViewInit, OnInit {
   }
   ngOnInit(): void {
     this.preloadImgs();
+    this.openList();
   }
   openList(): void {
     this.dialog.open(ModalSkillsComponent, { width: '60%', minWidth: '300px' });
